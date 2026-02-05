@@ -72,10 +72,11 @@ with st.sidebar:
     3. Select **Without media**
     4. Save the `.txt` file
 
-    **Privacy Note:**
-    - Your chat is processed locally
-    - We don't store any data
-    - Analysis happens in real-time
+    **⚠️ Privacy Notice:**
+    - Your chat is uploaded to Streamlit's servers for processing
+    - Data is processed in-memory and **not permanently stored**
+    - We don't have access to your data
+    - For maximum privacy, run locally (see GitHub)
     """)
 
     st.divider()
@@ -90,6 +91,14 @@ with st.sidebar:
     - **Activity Heatmaps**
     - **Relationship Timeline**
     """)
+
+# Privacy disclaimer
+st.warning("""
+**⚠️ Privacy Disclaimer:** By uploading your chat, you acknowledge that:
+- Your data will be temporarily processed on Streamlit's cloud servers
+- We do NOT store, log, or have access to your conversations
+- For sensitive chats, consider running this app locally ([GitHub](https://github.com/skepticalCA/whatsapp-chat-analyzer))
+""")
 
 # Main content
 uploaded_file = st.file_uploader(
