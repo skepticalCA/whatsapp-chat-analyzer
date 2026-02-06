@@ -76,6 +76,19 @@ class DashboardGenerator:
         """Get display name for a participant."""
         return self.participant_mapping.get(raw_name, raw_name)
 
+    def _safe_render(self, render_func, *args, **kwargs):
+        """Wrap a render call so one section's failure doesn't blank the whole dashboard."""
+        try:
+            render_func(*args, **kwargs)
+        except Exception as e:
+            print(f"Warning: {render_func.__name__} failed: {e}")
+            for arg in args:
+                try:
+                    if hasattr(arg, 'axis'):
+                        arg.axis('off')
+                except Exception:
+                    pass
+
     def create_dashboard(self, output_path: str, figsize: Tuple[int, int] = (20, 28)):
         """Generate complete dashboard PNG."""
         fig = plt.figure(figsize=figsize, facecolor=COLORS['background'])
@@ -86,45 +99,45 @@ class DashboardGenerator:
 
         # Row 0: Header (spans all columns)
         ax_header = fig.add_subplot(gs[0, :])
-        self._render_header(ax_header)
+        self._safe_render(self._render_header, ax_header)
 
         # Row 1: Relationship Rating | Key Insights | Conversation Analysis
         ax_rating = fig.add_subplot(gs[1, 0])
         ax_insights = fig.add_subplot(gs[1, 1])
         ax_conv = fig.add_subplot(gs[1, 2])
-        self._render_relationship_rating(ax_rating)
-        self._render_key_insights(ax_insights)
-        self._render_conversation_analysis(ax_conv)
+        self._safe_render(self._render_relationship_rating, ax_rating)
+        self._safe_render(self._render_key_insights, ax_insights)
+        self._safe_render(self._render_conversation_analysis, ax_conv)
 
         # Row 2: Balance of Power | Direction | Responding
         ax_balance = fig.add_subplot(gs[2, 0])
         ax_direction = fig.add_subplot(gs[2, 1])
         ax_responding = fig.add_subplot(gs[2, 2])
-        self._render_balance_of_power(ax_balance)
-        self._render_direction_stats(ax_direction)
-        self._render_responding_metrics(ax_responding)
+        self._safe_render(self._render_balance_of_power, ax_balance)
+        self._safe_render(self._render_direction_stats, ax_direction)
+        self._safe_render(self._render_responding_metrics, ax_responding)
 
         # Row 3: Chat Focus Pie | Message Analysis | Content Analysis
         ax_pie = fig.add_subplot(gs[3, 0])
         ax_msg_analysis = fig.add_subplot(gs[3, 1])
         ax_content = fig.add_subplot(gs[3, 2])
-        self._render_chat_focus_pie(ax_pie)
-        self._render_message_analysis(ax_msg_analysis)
-        self._render_content_analysis(ax_content)
+        self._safe_render(self._render_chat_focus_pie, ax_pie)
+        self._safe_render(self._render_message_analysis, ax_msg_analysis)
+        self._safe_render(self._render_content_analysis, ax_content)
 
         # Row 4: Messaging Times Heatmap (spans all columns)
         ax_heatmap = fig.add_subplot(gs[4, :])
-        self._render_messaging_heatmap(ax_heatmap)
+        self._safe_render(self._render_messaging_heatmap, ax_heatmap)
 
         # Row 5-6: Relationship Growth Timeline (spans all columns, double height)
         ax_timeline = fig.add_subplot(gs[5:7, :])
-        self._render_growth_timeline(ax_timeline)
+        self._safe_render(self._render_growth_timeline, ax_timeline)
 
         # Row 7: Milestones
         ax_milestones = fig.add_subplot(gs[7, :])
-        self._render_milestones(ax_milestones)
+        self._safe_render(self._render_milestones, ax_milestones)
 
-        # Save
+        # Save - always reaches here even if individual sections failed
         plt.savefig(output_path, dpi=150, facecolor=COLORS['background'],
                     edgecolor='none', bbox_inches='tight')
         plt.close()

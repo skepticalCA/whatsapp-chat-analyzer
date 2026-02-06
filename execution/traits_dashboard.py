@@ -63,6 +63,20 @@ class TraitsDashboardGenerator:
     def get_display_name(self, raw_name: str) -> str:
         return self.participant_mapping.get(raw_name, raw_name)
 
+    def _safe_render(self, render_func, *args, **kwargs):
+        """Wrap a render call so one section's failure doesn't blank the whole dashboard."""
+        try:
+            render_func(*args, **kwargs)
+        except Exception as e:
+            print(f"Warning: {render_func.__name__} failed: {e}")
+            # Try to hide the broken axes
+            for arg in args:
+                try:
+                    if hasattr(arg, 'axis'):
+                        arg.axis('off')
+                except Exception:
+                    pass
+
     def create_dashboard(self, output_path: str, figsize=(22, 30)):
         """Generate the complete traits dashboard."""
         fig = plt.figure(figsize=figsize, facecolor=COLORS['background'])
@@ -73,7 +87,7 @@ class TraitsDashboardGenerator:
 
         # Row 0: Header
         ax_header = fig.add_subplot(gs[0, :])
-        self._render_header(ax_header)
+        self._safe_render(self._render_header, ax_header)
 
         # Row 1: Good traits - Person 1 | Good traits - Person 2
         ax_good1 = fig.add_subplot(gs[1, 0])
@@ -99,16 +113,16 @@ class TraitsDashboardGenerator:
         # Render sections
         if len(self.participants) >= 2:
             p1, p2 = self.participants[0], self.participants[1]
-            self._render_good_traits(ax_good1, p1, good_traits.get(p1, []))
-            self._render_good_traits(ax_good2, p2, good_traits.get(p2, []))
-            self._render_bad_traits(ax_bad1, p1, bad_traits.get(p1, []))
-            self._render_bad_traits(ax_bad2, p2, bad_traits.get(p2, []))
+            self._safe_render(self._render_good_traits, ax_good1, p1, good_traits.get(p1, []))
+            self._safe_render(self._render_good_traits, ax_good2, p2, good_traits.get(p2, []))
+            self._safe_render(self._render_bad_traits, ax_bad1, p1, bad_traits.get(p1, []))
+            self._safe_render(self._render_bad_traits, ax_bad2, p2, bad_traits.get(p2, []))
 
-        self._render_detailed_metrics(ax_metrics)
-        self._render_communication_style(ax_style)
-        self._render_suggestions(ax_suggestions, bad_traits)
+        self._safe_render(self._render_detailed_metrics, ax_metrics)
+        self._safe_render(self._render_communication_style, ax_style)
+        self._safe_render(self._render_suggestions, ax_suggestions, bad_traits)
 
-        # Save
+        # Save - always reaches here even if individual sections failed
         plt.savefig(output_path, dpi=150, facecolor=COLORS['background'],
                     edgecolor='none', bbox_inches='tight')
         plt.close()
@@ -165,7 +179,6 @@ class TraitsDashboardGenerator:
         """Render beautiful good traits for a person."""
         name = self.get_display_name(sender)
         is_person1 = sender == self.participants[0]
-        color = COLORS['person1'] if is_person1 else COLORS['person2']
         emoji = "💙" if is_person1 else "💖"
 
         self._setup_card(ax, f"{emoji} {name}'s Strengths", title_color=COLORS['good_green'], icon="⭐")
@@ -177,57 +190,52 @@ class TraitsDashboardGenerator:
                    transform=ax.transAxes, fontsize=12, fontstyle='italic')
             return
 
-        # Decorative stars
         strength_icons = ["🌟", "⭐", "✨", "💫", "🌟"]
 
         y_pos = 0.86
         for i, trait in enumerate(traits[:5]):
-            # Score bar background (rounded)
-            bar_width = trait['score'] / 100 * 0.58
+            score = trait['score']
+            bar_fill_width = score / 100 * 0.72
 
+            # Row 1: Icon + Trait name (left) + Score (right)
+            ax.text(0.04, y_pos, strength_icons[i % len(strength_icons)], fontsize=14,
+                   ha='center', va='center', transform=ax.transAxes)
+            ax.text(0.11, y_pos, trait['trait'], fontsize=10.5,
+                   color=COLORS['text_primary'], fontweight='bold',
+                   transform=ax.transAxes, va='center')
+            ax.text(0.97, y_pos, f"✓ {score:.0f}", fontsize=10.5,
+                   color=COLORS['good_green'], fontweight='bold',
+                   ha='right', va='center', transform=ax.transAxes)
+
+            # Row 2: Description
+            desc = trait['description'][:45] + ('...' if len(trait['description']) > 45 else '')
+            ax.text(0.11, y_pos - 0.035, desc, fontsize=8,
+                   color=COLORS['text_secondary'], transform=ax.transAxes, va='center')
+
+            # Row 3: Bar background (below text)
             ax.add_patch(mpatches.FancyBboxPatch(
-                (0.30, y_pos - 0.025), 0.58, 0.04,
-                boxstyle="round,pad=0.015",
+                (0.11, y_pos - 0.075), 0.72, 0.022,
+                boxstyle="round,pad=0.008",
                 facecolor=COLORS['good_light'],
                 alpha=0.3,
                 transform=ax.transAxes
             ))
 
-            # Score bar fill (gradient effect)
+            # Bar fill
             ax.add_patch(mpatches.FancyBboxPatch(
-                (0.30, y_pos - 0.025), bar_width, 0.04,
-                boxstyle="round,pad=0.015",
+                (0.11, y_pos - 0.075), bar_fill_width, 0.022,
+                boxstyle="round,pad=0.008",
                 facecolor=COLORS['good_green'],
                 alpha=0.75,
                 transform=ax.transAxes
             ))
 
-            # Strength icon
-            ax.text(0.05, y_pos, strength_icons[i % len(strength_icons)], fontsize=16,
-                   ha='center', va='center', transform=ax.transAxes)
-
-            # Trait name (bold)
-            ax.text(0.12, y_pos + 0.025, trait['trait'], fontsize=11,
-                   color=COLORS['text_primary'], fontweight='bold',
-                   transform=ax.transAxes, va='center')
-
-            # Description
-            desc = trait['description'][:42] + ('...' if len(trait['description']) > 42 else '')
-            ax.text(0.12, y_pos - 0.03, desc, fontsize=8.5,
-                   color=COLORS['text_secondary'], transform=ax.transAxes, va='center')
-
-            # Score with check mark
-            ax.text(0.92, y_pos, f"✓ {trait['score']:.0f}", fontsize=11,
-                   color=COLORS['good_green'], fontweight='bold',
-                   ha='right', va='center', transform=ax.transAxes)
-
-            y_pos -= 0.165
+            y_pos -= 0.17
 
     def _render_bad_traits(self, ax, sender: str, traits: List[Dict]):
         """Render gentle growth areas for a person."""
         name = self.get_display_name(sender)
         is_person1 = sender == self.participants[0]
-        color = COLORS['person1'] if is_person1 else COLORS['person2']
         emoji = "💙" if is_person1 else "💖"
 
         self._setup_card(ax, f"{emoji} {name}'s Growth Journey", title_color=COLORS['purple'], icon="🌱")
@@ -239,47 +247,44 @@ class TraitsDashboardGenerator:
                    transform=ax.transAxes, fontsize=12, fontstyle='italic')
             return
 
-        # Growth-focused icons (softer, encouraging)
         growth_icons = ["🌱", "💪", "📈", "🎯", "💡"]
 
         y_pos = 0.86
         for i, trait in enumerate(traits[:5]):
             severity = trait.get('severity', 50)
-            bar_width = severity / 100 * 0.58
+            bar_fill_width = severity / 100 * 0.72
 
-            # Bar background (soft)
+            # Row 1: Icon + Trait name (left)
+            ax.text(0.04, y_pos, growth_icons[i % len(growth_icons)], fontsize=14,
+                   ha='center', va='center', transform=ax.transAxes)
+            ax.text(0.11, y_pos, trait['trait'], fontsize=10.5,
+                   color=COLORS['text_primary'], fontweight='bold',
+                   transform=ax.transAxes, va='center')
+
+            # Row 2: Description
+            desc = trait['description'][:45] + ('...' if len(trait['description']) > 45 else '')
+            ax.text(0.11, y_pos - 0.035, desc, fontsize=8,
+                   color=COLORS['text_secondary'], transform=ax.transAxes, va='center')
+
+            # Row 3: Bar background (below text)
             ax.add_patch(mpatches.FancyBboxPatch(
-                (0.30, y_pos - 0.025), 0.58, 0.04,
-                boxstyle="round,pad=0.015",
+                (0.11, y_pos - 0.075), 0.72, 0.022,
+                boxstyle="round,pad=0.008",
                 facecolor=COLORS['bad_light'],
                 alpha=0.3,
                 transform=ax.transAxes
             ))
 
-            # Bar fill (soft coral, not harsh red)
+            # Bar fill (soft coral)
             ax.add_patch(mpatches.FancyBboxPatch(
-                (0.30, y_pos - 0.025), bar_width, 0.04,
-                boxstyle="round,pad=0.015",
+                (0.11, y_pos - 0.075), bar_fill_width, 0.022,
+                boxstyle="round,pad=0.008",
                 facecolor=COLORS['bad_red'],
                 alpha=0.6,
                 transform=ax.transAxes
             ))
 
-            # Growth icon
-            ax.text(0.05, y_pos, growth_icons[i % len(growth_icons)], fontsize=16,
-                   ha='center', va='center', transform=ax.transAxes)
-
-            # Trait name
-            ax.text(0.12, y_pos + 0.025, trait['trait'], fontsize=11,
-                   color=COLORS['text_primary'], fontweight='bold',
-                   transform=ax.transAxes, va='center')
-
-            # Description (encouraging tone)
-            desc = trait['description'][:42] + ('...' if len(trait['description']) > 42 else '')
-            ax.text(0.12, y_pos - 0.03, desc, fontsize=8.5,
-                   color=COLORS['text_secondary'], transform=ax.transAxes, va='center')
-
-            y_pos -= 0.165
+            y_pos -= 0.17
 
     def _render_detailed_metrics(self, ax):
         """Render beautiful detailed comparison metrics."""

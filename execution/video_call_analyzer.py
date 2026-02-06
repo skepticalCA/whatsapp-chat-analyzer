@@ -309,6 +309,19 @@ class VideoCallDashboard:
     def get_display_name(self, raw_name: str) -> str:
         return self.participant_mapping.get(raw_name, raw_name)
 
+    def _safe_render(self, render_func, *args, **kwargs):
+        """Wrap a render call so one section's failure doesn't blank the whole dashboard."""
+        try:
+            render_func(*args, **kwargs)
+        except Exception as e:
+            print(f"Warning: {render_func.__name__} failed: {e}")
+            for arg in args:
+                try:
+                    if hasattr(arg, 'axis'):
+                        arg.axis('off')
+                except Exception:
+                    pass
+
     def create_dashboard(self, output_path: str, figsize=(22, 28)):
         """Generate the complete video call dashboard."""
         fig = plt.figure(figsize=figsize, facecolor=COLORS['background'])
@@ -318,7 +331,7 @@ class VideoCallDashboard:
 
         # Row 0: Header
         ax_header = fig.add_subplot(gs[0, :])
-        self._render_header(ax_header)
+        self._safe_render(self._render_header, ax_header)
 
         # Row 1: Summary stats | Call type breakdown | By person
         ax_summary = fig.add_subplot(gs[1, 0])
@@ -344,18 +357,19 @@ class VideoCallDashboard:
         ax_facts = fig.add_subplot(gs[6, :])
 
         # Render all sections
-        self._render_summary(ax_summary)
-        self._render_call_types(ax_types)
-        self._render_by_person(ax_person)
-        self._render_monthly_trends(ax_monthly)
-        self._render_hourly(ax_hourly)
-        self._render_daily(ax_daily)
-        self._render_duration_dist(ax_duration)
-        self._render_heatmap(ax_heatmap)
-        self._render_longest_calls(ax_longest)
-        self._render_streaks(ax_streaks)
-        self._render_fun_facts(ax_facts)
+        self._safe_render(self._render_summary, ax_summary)
+        self._safe_render(self._render_call_types, ax_types)
+        self._safe_render(self._render_by_person, ax_person)
+        self._safe_render(self._render_monthly_trends, ax_monthly)
+        self._safe_render(self._render_hourly, ax_hourly)
+        self._safe_render(self._render_daily, ax_daily)
+        self._safe_render(self._render_duration_dist, ax_duration)
+        self._safe_render(self._render_heatmap, ax_heatmap)
+        self._safe_render(self._render_longest_calls, ax_longest)
+        self._safe_render(self._render_streaks, ax_streaks)
+        self._safe_render(self._render_fun_facts, ax_facts)
 
+        # Save - always reaches here even if individual sections failed
         plt.savefig(output_path, dpi=150, facecolor=COLORS['background'],
                     edgecolor='none', bbox_inches='tight')
         plt.close()
