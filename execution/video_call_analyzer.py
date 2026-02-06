@@ -21,21 +21,23 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from chat_parser import parse_whatsapp_chat, Message, MessageType
 
 
-# Color palette
+# Romantic Love Theme Color Palette
 COLORS = {
-    'background': '#0a0a14',
-    'card_bg': '#141428',
-    'card_border': '#252550',
-    'text_primary': '#ffffff',
-    'text_secondary': '#a0a0c0',
-    'text_muted': '#606080',
-    'video_call': '#8b5cf6',  # Purple for video
-    'voice_call': '#22d3ee',  # Cyan for voice
-    'missed': '#ef4444',  # Red for missed
-    'person1': '#3b82f6',
-    'person2': '#ec4899',
-    'gold': '#fbbf24',
-    'green': '#10b981'
+    'background': '#fff5f7',       # Soft pink background
+    'card_bg': '#ffffff',          # White cards
+    'card_border': '#ffb6c1',      # Light pink border
+    'text_primary': '#4a3540',     # Dark rose text
+    'text_secondary': '#7d6070',   # Muted rose text
+    'text_muted': '#b8a0aa',       # Light muted text
+    'video_call': '#a855f7',       # Purple for video
+    'voice_call': '#06b6d4',       # Cyan for voice
+    'missed': '#f43f5e',           # Rose red for missed
+    'person1': '#6366f1',          # Indigo
+    'person2': '#ec4899',          # Pink
+    'gold': '#f59e0b',             # Warm gold
+    'green': '#10b981',            # Teal green
+    'love_pink': '#ff6b9d',        # Love pink
+    'love_dark': '#c44569',        # Dark rose
 }
 
 
@@ -293,7 +295,10 @@ class VideoCallDashboard:
         self.participant_mapping = participant_mapping
         self.participants = list(participant_mapping.keys())
 
-        plt.style.use('dark_background')
+        plt.style.use('seaborn-v0_8-whitegrid')
+        plt.rcParams['axes.facecolor'] = COLORS['card_bg']
+        plt.rcParams['figure.facecolor'] = COLORS['background']
+        plt.rcParams['text.color'] = COLORS['text_primary']
 
     def get_display_name(self, raw_name: str) -> str:
         return self.participant_mapping.get(raw_name, raw_name)
@@ -354,8 +359,9 @@ class VideoCallDashboard:
         ax.set_facecolor(COLORS['card_bg'])
         for spine in ax.spines.values():
             spine.set_color(COLORS['card_border'])
+            spine.set_linewidth(2)
         if title:
-            ax.set_title(title, color=title_color or COLORS['text_primary'],
+            ax.set_title(f"💕 {title}", color=title_color or COLORS['love_dark'],
                         fontsize=12, fontweight='bold', loc='left', pad=10)
 
     def _render_header(self, ax):
@@ -365,18 +371,18 @@ class VideoCallDashboard:
         summary = self.analyzer.get_call_summary()
         total_hours = summary['total_call_time_hours']
 
-        ax.text(0.5, 0.7, "Video & Voice Call Analysis", fontsize=28,
-                color=COLORS['text_primary'], ha='center', va='center',
+        ax.text(0.5, 0.70, "📞 Your Calls Together 💕", fontsize=28,
+                color=COLORS['love_dark'], ha='center', va='center',
                 fontweight='bold', transform=ax.transAxes)
 
-        ax.text(0.5, 0.35, f"Total: {summary['total_calls']:,} calls | {total_hours:.1f} hours together",
-                fontsize=14, color=COLORS['video_call'], ha='center', va='center',
-                transform=ax.transAxes)
+        ax.text(0.5, 0.38, f"{summary['total_calls']:,} calls | {total_hours:.1f} hours of connection",
+                fontsize=16, color=COLORS['love_pink'], ha='center', va='center',
+                fontweight='bold', transform=ax.transAxes)
 
         p1 = self.get_display_name(self.participants[0])
         p2 = self.get_display_name(self.participants[1]) if len(self.participants) > 1 else ""
-        ax.text(0.5, 0.1, f"{p1} & {p2}", fontsize=12,
-                color=COLORS['text_muted'], ha='center', transform=ax.transAxes)
+        ax.text(0.5, 0.10, f"💕 {p1} & {p2} 💕", fontsize=14,
+                color=COLORS['text_secondary'], ha='center', transform=ax.transAxes)
 
     def _render_summary(self, ax):
         self._setup_card(ax, "Call Summary")
@@ -542,14 +548,19 @@ class VideoCallDashboard:
                    str(val), va='center', fontsize=8, color=COLORS['text_secondary'])
 
     def _render_heatmap(self, ax):
-        self._setup_card(ax, "Call Activity Heatmap (Day x Hour)")
+        self._setup_card(ax, "When You Call Each Other")
 
         heatmap = self.analyzer.get_call_heatmap()
         days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-        sns.heatmap(heatmap, ax=ax, cmap='Purples', cbar=True,
+        # Romantic pink colormap
+        from matplotlib.colors import LinearSegmentedColormap
+        romantic_colors = ['#fff5f7', '#ffe4ec', '#ffb6c1', '#ff6b9d', '#c44569']
+        romantic_cmap = LinearSegmentedColormap.from_list('romantic', romantic_colors)
+
+        sns.heatmap(heatmap, ax=ax, cmap=romantic_cmap, cbar=True,
                    xticklabels=[f'{h}' for h in range(24)],
-                   yticklabels=days, linewidths=0.5, linecolor=COLORS['card_border'])
+                   yticklabels=days, linewidths=0.5, linecolor='#ffe4ec')
 
         ax.set_xlabel('Hour of Day', color=COLORS['text_secondary'], fontsize=10)
         ax.tick_params(colors=COLORS['text_secondary'], labelsize=8)

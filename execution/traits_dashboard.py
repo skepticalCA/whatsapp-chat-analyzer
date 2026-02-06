@@ -19,23 +19,25 @@ from metrics_calculator import MetricsCalculator
 from traits_analyzer import TraitsAnalyzer
 
 
-# Color palette
+# Romantic Love Theme Color Palette
 COLORS = {
-    'background': '#0a0a14',
-    'card_bg': '#141428',
-    'card_border': '#252550',
-    'text_primary': '#ffffff',
-    'text_secondary': '#a0a0c0',
-    'text_muted': '#606080',
-    'good_green': '#10b981',
-    'good_light': '#34d399',
-    'bad_red': '#ef4444',
-    'bad_light': '#f87171',
-    'person1': '#3b82f6',  # Blue - Arvind
-    'person2': '#ec4899',  # Pink - Palak
-    'gold': '#fbbf24',
-    'purple': '#a855f7',
-    'cyan': '#22d3ee'
+    'background': '#fff5f7',       # Soft pink background
+    'card_bg': '#ffffff',          # White cards
+    'card_border': '#ffb6c1',      # Light pink border
+    'text_primary': '#4a3540',     # Dark rose text
+    'text_secondary': '#7d6070',   # Muted rose text
+    'text_muted': '#b8a0aa',       # Light muted text
+    'good_green': '#10b981',       # Teal green for positive
+    'good_light': '#34d399',       # Light green
+    'bad_red': '#f43f5e',          # Rose red for improvement areas
+    'bad_light': '#fb7185',        # Light rose
+    'person1': '#6366f1',          # Indigo for Person 1
+    'person2': '#ec4899',          # Pink for Person 2
+    'gold': '#f59e0b',             # Warm gold
+    'purple': '#a855f7',           # Soft purple
+    'cyan': '#06b6d4',             # Cyan
+    'love_pink': '#ff6b9d',        # Love pink
+    'love_dark': '#c44569',        # Dark rose
 }
 
 
@@ -47,8 +49,11 @@ class TraitsDashboardGenerator:
         self.participant_mapping = participant_mapping
         self.participants = list(participant_mapping.keys())
 
-        plt.style.use('dark_background')
+        plt.style.use('seaborn-v0_8-whitegrid')
         plt.rcParams['font.family'] = 'sans-serif'
+        plt.rcParams['axes.facecolor'] = COLORS['card_bg']
+        plt.rcParams['figure.facecolor'] = COLORS['background']
+        plt.rcParams['text.color'] = COLORS['text_primary']
 
     def get_display_name(self, raw_name: str) -> str:
         return self.participant_mapping.get(raw_name, raw_name)
@@ -105,36 +110,36 @@ class TraitsDashboardGenerator:
         print(f"Traits dashboard saved to {output_path}")
 
     def _setup_card(self, ax, title: str = None, title_color=None):
-        """Set up card styling."""
+        """Set up card styling with romantic theme."""
         ax.set_facecolor(COLORS['card_bg'])
         for spine in ax.spines.values():
             spine.set_color(COLORS['card_border'])
-            spine.set_linewidth(1)
+            spine.set_linewidth(2)
         ax.tick_params(colors=COLORS['text_secondary'])
 
         if title:
-            color = title_color or COLORS['text_primary']
-            ax.set_title(title, color=color, fontsize=14,
+            color = title_color or COLORS['love_dark']
+            ax.set_title(f"💕 {title}", color=color, fontsize=14,
                         fontweight='bold', loc='left', pad=15)
 
     def _render_header(self, ax):
-        """Render title header."""
+        """Render title header with romantic styling."""
         ax.set_facecolor(COLORS['background'])
         ax.axis('off')
 
-        ax.text(0.5, 0.65, "Relationship Traits Analysis", fontsize=32,
-                color=COLORS['text_primary'], ha='center', va='center',
+        ax.text(0.5, 0.70, "💕 Personality & Traits Analysis 💕", fontsize=28,
+                color=COLORS['love_dark'], ha='center', va='center',
                 fontweight='bold', transform=ax.transAxes)
 
         p1_name = self.get_display_name(self.participants[0])
         p2_name = self.get_display_name(self.participants[1]) if len(self.participants) > 1 else ""
 
-        ax.text(0.5, 0.30, f"{p1_name} & {p2_name}", fontsize=18,
-                color=COLORS['text_secondary'], ha='center', va='center',
-                transform=ax.transAxes)
+        ax.text(0.5, 0.35, f"{p1_name} & {p2_name}", fontsize=20,
+                color=COLORS['love_pink'], ha='center', va='center',
+                fontweight='bold', transform=ax.transAxes)
 
-        ax.text(0.5, 0.05, "Good Traits vs Areas for Improvement", fontsize=12,
-                color=COLORS['text_muted'], ha='center', va='center',
+        ax.text(0.5, 0.08, "Celebrating your strengths & growing together", fontsize=12,
+                color=COLORS['text_secondary'], ha='center', va='center',
                 transform=ax.transAxes)
 
     def _render_good_traits(self, ax, sender: str, traits: List[Dict]):

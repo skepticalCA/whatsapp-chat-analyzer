@@ -16,24 +16,28 @@ from topic_classifier import TopicClassifier
 from sentiment_analyzer import SentimentAnalyzer
 
 
-# Dark theme color palette
+# Romantic Love Theme Color Palette
 COLORS = {
-    'background': '#0f0f1a',
-    'card_bg': '#1a1a2e',
-    'card_border': '#2a2a4a',
-    'text_primary': '#ffffff',
-    'text_secondary': '#a0a0b0',
-    'text_muted': '#606080',
-    'accent_green': '#4ade80',
-    'accent_orange': '#fb923c',
-    'accent_purple': '#a855f7',
-    'accent_pink': '#ec4899',
-    'accent_blue': '#3b82f6',
-    'accent_cyan': '#22d3ee',
-    'accent_red': '#ef4444',
-    'person1': '#3b82f6',  # Blue for Arvind
-    'person2': '#ec4899',  # Pink for Palak
-    'chart_colors': ['#3b82f6', '#ec4899', '#4ade80', '#fb923c', '#a855f7', '#22d3ee', '#ef4444']
+    'background': '#fff5f7',       # Soft pink background
+    'card_bg': '#ffffff',          # White cards
+    'card_border': '#ffb6c1',      # Light pink border
+    'text_primary': '#4a3540',     # Dark rose text
+    'text_secondary': '#7d6070',   # Muted rose text
+    'text_muted': '#b8a0aa',       # Light muted text
+    'accent_green': '#10b981',     # Teal green for positive
+    'accent_orange': '#f97316',    # Warm orange
+    'accent_purple': '#a855f7',    # Soft purple
+    'accent_pink': '#ec4899',      # Hot pink
+    'accent_blue': '#6366f1',      # Soft indigo
+    'accent_cyan': '#06b6d4',      # Cyan
+    'accent_red': '#f43f5e',       # Rose red
+    'accent_rose': '#fb7185',      # Soft rose
+    'person1': '#6366f1',          # Indigo for Person 1
+    'person2': '#ec4899',          # Pink for Person 2
+    'love_pink': '#ff6b9d',        # Love pink
+    'love_dark': '#c44569',        # Dark rose
+    'heart_red': '#e11d48',        # Heart red
+    'chart_colors': ['#ec4899', '#6366f1', '#10b981', '#f97316', '#a855f7', '#06b6d4', '#f43f5e']
 }
 
 
@@ -53,10 +57,16 @@ class DashboardGenerator:
         self.participant_mapping = participant_mapping
         self.participants = list(participant_mapping.keys())
 
-        # Set up matplotlib style
-        plt.style.use('dark_background')
+        # Set up matplotlib style - Light romantic theme
+        plt.style.use('seaborn-v0_8-whitegrid')
         plt.rcParams['font.family'] = 'sans-serif'
         plt.rcParams['font.sans-serif'] = ['Arial', 'Helvetica', 'DejaVu Sans']
+        plt.rcParams['axes.facecolor'] = COLORS['card_bg']
+        plt.rcParams['figure.facecolor'] = COLORS['background']
+        plt.rcParams['text.color'] = COLORS['text_primary']
+        plt.rcParams['axes.labelcolor'] = COLORS['text_secondary']
+        plt.rcParams['xtick.color'] = COLORS['text_secondary']
+        plt.rcParams['ytick.color'] = COLORS['text_secondary']
 
     def get_display_name(self, raw_name: str) -> str:
         """Get display name for a participant."""
@@ -117,19 +127,19 @@ class DashboardGenerator:
         print(f"Dashboard saved to {output_path}")
 
     def _setup_card(self, ax, title: str = None):
-        """Set up a card-style subplot with dark background."""
+        """Set up a card-style subplot with light romantic background."""
         ax.set_facecolor(COLORS['card_bg'])
         for spine in ax.spines.values():
             spine.set_color(COLORS['card_border'])
-            spine.set_linewidth(1)
+            spine.set_linewidth(2)
         ax.tick_params(colors=COLORS['text_secondary'])
 
         if title:
-            ax.set_title(title, color=COLORS['text_primary'], fontsize=12,
+            ax.set_title(f"💕 {title}", color=COLORS['love_dark'], fontsize=12,
                         fontweight='bold', loc='left', pad=10)
 
     def _render_header(self, ax):
-        """Render title and date range."""
+        """Render title and date range with romantic styling."""
         ax.set_facecolor(COLORS['background'])
         ax.axis('off')
 
@@ -137,45 +147,48 @@ class DashboardGenerator:
         start, end = self.metrics.get_date_range()
         date_range = f"From {start.strftime('%d %b %Y')} - {end.strftime('%d %b %Y')}"
 
-        # Get partner name
-        partner_name = None
-        for raw, display in self.participant_mapping.items():
-            if display != "Arvind":
-                partner_name = display
-                break
+        # Get display names
+        names = list(self.participant_mapping.values())
+        title_text = f"💕 {names[0]} & {names[1]}'s Love Story 💕" if len(names) >= 2 else "Your Love Story 💕"
 
-        # Title
-        ax.text(0.5, 0.7, f"Your chat with {partner_name}", fontsize=28,
-                color=COLORS['text_primary'], ha='center', va='center',
+        # Title with romantic styling
+        ax.text(0.5, 0.7, title_text, fontsize=28,
+                color=COLORS['love_dark'], ha='center', va='center',
                 fontweight='bold', transform=ax.transAxes)
 
         # Subtitle
-        ax.text(0.5, 0.3, date_range, fontsize=14,
+        ax.text(0.5, 0.35, date_range, fontsize=14,
                 color=COLORS['text_secondary'], ha='center', va='center',
                 transform=ax.transAxes)
 
-        # Heart emoji
-        ax.text(0.5, 0.0, "❤️", fontsize=20, ha='center', va='center',
+        # Heart decoration
+        ax.text(0.5, 0.05, "❤️ 💕 ❤️", fontsize=18, ha='center', va='center',
                 transform=ax.transAxes)
 
     def _render_relationship_rating(self, ax):
-        """Render rating box with score and description."""
-        self._setup_card(ax, "RELATIONSHIP RATING")
+        """Render rating box with score and romantic styling."""
+        self._setup_card(ax, "LOVE SCORE")
         ax.axis('off')
 
         label, desc, score = self.sentiment.calculate_relationship_rating()
 
-        # Score circle
-        circle = plt.Circle((0.5, 0.6), 0.25, color=COLORS['accent_green'],
-                            fill=False, linewidth=4, transform=ax.transAxes)
+        # Heart-shaped score display with gradient circle
+        circle = plt.Circle((0.5, 0.6), 0.25, color=COLORS['love_pink'],
+                            fill=False, linewidth=5, transform=ax.transAxes)
         ax.add_patch(circle)
 
-        # Score text
-        ax.text(0.5, 0.6, f"{score:.0f}", fontsize=32, color=COLORS['accent_green'],
+        # Inner fill
+        circle_fill = plt.Circle((0.5, 0.6), 0.23, color=COLORS['love_pink'],
+                                 alpha=0.15, transform=ax.transAxes)
+        ax.add_patch(circle_fill)
+
+        # Score text with heart
+        ax.text(0.5, 0.62, f"{score:.0f}", fontsize=34, color=COLORS['love_dark'],
                 ha='center', va='center', fontweight='bold', transform=ax.transAxes)
+        ax.text(0.5, 0.45, "💕", fontsize=14, ha='center', va='center', transform=ax.transAxes)
 
         # Label
-        ax.text(0.5, 0.25, label, fontsize=16, color=COLORS['text_primary'],
+        ax.text(0.5, 0.25, label, fontsize=16, color=COLORS['love_dark'],
                 ha='center', va='center', fontweight='bold', transform=ax.transAxes)
 
         # Description
@@ -183,7 +196,7 @@ class DashboardGenerator:
                 ha='center', va='center', wrap=True, transform=ax.transAxes)
 
     def _render_key_insights(self, ax):
-        """Render insights list."""
+        """Render insights list with romantic styling."""
         self._setup_card(ax, "KEY INSIGHTS")
         ax.axis('off')
 
@@ -191,12 +204,12 @@ class DashboardGenerator:
 
         y_pos = 0.85
         for i, insight in enumerate(insights[:5]):
-            # Bullet point
-            ax.text(0.05, y_pos, "•", fontsize=14, color=COLORS['accent_cyan'],
+            # Heart bullet point
+            ax.text(0.05, y_pos, "💗", fontsize=10, color=COLORS['love_pink'],
                    transform=ax.transAxes)
             # Insight text (wrap long text)
             wrapped = insight[:60] + ('...' if len(insight) > 60 else '')
-            ax.text(0.1, y_pos, wrapped, fontsize=9, color=COLORS['text_secondary'],
+            ax.text(0.12, y_pos, wrapped, fontsize=9, color=COLORS['text_primary'],
                    transform=ax.transAxes, va='center')
             y_pos -= 0.17
 
@@ -469,18 +482,23 @@ class DashboardGenerator:
             y_pos -= 0.11
 
     def _render_messaging_heatmap(self, ax):
-        """Render 7x24 activity heatmap."""
-        self._setup_card(ax, "MESSAGING TIMES")
+        """Render 7x24 activity heatmap with romantic colors."""
+        self._setup_card(ax, "WHEN YOU TALK THE MOST")
 
         heatmap_data = self.metrics.get_hourly_heatmap()
 
         # Day labels
         days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+        # Create romantic pink colormap
+        from matplotlib.colors import LinearSegmentedColormap
+        romantic_colors = ['#fff5f7', '#ffe4ec', '#ffb6c1', '#ff6b9d', '#c44569']
+        romantic_cmap = LinearSegmentedColormap.from_list('romantic', romantic_colors)
+
         # Create heatmap
-        sns.heatmap(heatmap_data, ax=ax, cmap='YlOrRd', cbar=True,
+        sns.heatmap(heatmap_data, ax=ax, cmap=romantic_cmap, cbar=True,
                    xticklabels=[f'{h}' for h in range(24)],
-                   yticklabels=days, linewidths=0.5, linecolor=COLORS['card_border'])
+                   yticklabels=days, linewidths=0.5, linecolor='#ffe4ec')
 
         ax.set_xlabel('Hour of Day', color=COLORS['text_secondary'], fontsize=10)
         ax.set_ylabel('', color=COLORS['text_secondary'])
@@ -551,14 +569,14 @@ class DashboardGenerator:
                               alpha=0.5, linewidth=1)
 
     def _render_milestones(self, ax):
-        """Render key milestones."""
-        self._setup_card(ax, "KEY MILESTONES")
+        """Render key milestones with romantic styling."""
+        self._setup_card(ax, "YOUR LOVE MILESTONES")
         ax.axis('off')
 
         milestones = self.sentiment.detect_milestones()
 
         if not milestones:
-            ax.text(0.5, 0.5, "No milestones detected", ha='center', va='center',
+            ax.text(0.5, 0.5, "Your journey is just beginning! 💕", ha='center', va='center',
                    color=COLORS['text_muted'], transform=ax.transAxes)
             return
 
@@ -575,10 +593,11 @@ class DashboardGenerator:
             else:
                 date_str = str(date)[:10]
 
-            ax.text(x_pos, 0.7, "◆", fontsize=16, color=COLORS['accent_cyan'],
+            # Heart marker instead of diamond
+            ax.text(x_pos, 0.7, "💕", fontsize=16, color=COLORS['love_pink'],
                    ha='center', va='center', transform=ax.transAxes)
-            ax.text(x_pos, 0.45, date_str, fontsize=9, color=COLORS['text_secondary'],
-                   ha='center', va='center', transform=ax.transAxes)
+            ax.text(x_pos, 0.45, date_str, fontsize=9, color=COLORS['love_dark'],
+                   ha='center', va='center', transform=ax.transAxes, fontweight='bold')
             ax.text(x_pos, 0.2, label, fontsize=8, color=COLORS['text_primary'],
                    ha='center', va='center', transform=ax.transAxes, wrap=True)
 
