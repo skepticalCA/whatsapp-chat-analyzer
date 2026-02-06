@@ -30,135 +30,186 @@ PAYMENT_ENABLED = True  # Set to False to disable payment requirement
 
 # Page config
 st.set_page_config(
-    page_title="Love Chat Analyzer 💕",
+    page_title="Love Chat Analyzer",
     page_icon="💕",
     layout="wide"
 )
 
-# Romantic Custom CSS
+# Fixed CSS with proper alignment and mobile visibility
 st.markdown("""
 <style>
-    /* Main romantic theme */
-    .main-header {
-        font-size: 3.5rem;
-        font-weight: bold;
-        text-align: center;
-        padding: 1rem;
-        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #ff6b9d 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shimmer 3s ease-in-out infinite;
+    /* Force dark text everywhere for visibility */
+    * {
+        color: #333 !important;
     }
 
-    @keyframes shimmer {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.8; }
+    /* Main romantic theme */
+    .main-header {
+        font-size: 2.5rem !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        padding: 1rem !important;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #ff6b9d 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+    }
+
+    @media (min-width: 768px) {
+        .main-header {
+            font-size: 3.5rem !important;
+        }
     }
 
     .sub-header {
-        text-align: center;
-        color: #c44569;
-        margin-bottom: 2rem;
-        font-size: 1.2rem;
+        text-align: center !important;
+        color: #c44569 !important;
+        margin-bottom: 2rem !important;
+        font-size: 1rem !important;
+    }
+
+    @media (min-width: 768px) {
+        .sub-header {
+            font-size: 1.2rem !important;
+        }
     }
 
     .love-card {
-        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%);
-        padding: 2rem;
-        border-radius: 20px;
-        border: 2px solid #ffb6c1;
-        text-align: center;
-        margin: 1rem 0;
-        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%) !important;
+        padding: 1.5rem !important;
+        border-radius: 20px !important;
+        border: 2px solid #ffb6c1 !important;
+        text-align: center !important;
+        margin: 1rem 0 !important;
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2) !important;
+    }
+
+    .love-card h2, .love-card h3 {
+        color: #c44569 !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .love-card p {
+        color: #555 !important;
+    }
+
+    /* Feature cards container - flexbox for equal heights */
+    .feature-container {
+        display: flex !important;
+        gap: 1rem !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        margin: 1rem 0 !important;
     }
 
     .feature-card {
-        background: linear-gradient(135deg, #fff0f3 0%, #ffe8ed 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        border-left: 4px solid #ff6b9d;
-        margin: 0.5rem 0;
+        background: linear-gradient(135deg, #fff0f3 0%, #ffe8ed 100%) !important;
+        padding: 1.5rem !important;
+        border-radius: 15px !important;
+        border-left: 4px solid #ff6b9d !important;
+        flex: 1 1 280px !important;
+        max-width: 350px !important;
+        min-height: 180px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .feature-card h3 {
+        color: #c44569 !important;
+        font-size: 1.2rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .feature-card p {
+        color: #555 !important;
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+        flex-grow: 1 !important;
     }
 
     .price-tag {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #c44569;
-        text-align: center;
+        font-size: 3rem !important;
+        font-weight: bold !important;
+        color: #c44569 !important;
+        text-align: center !important;
     }
 
     .price-subtitle {
-        color: #888;
-        text-align: center;
-        font-size: 0.9rem;
+        color: #666 !important;
+        text-align: center !important;
+        font-size: 0.9rem !important;
     }
 
     .heart-divider {
-        text-align: center;
-        font-size: 1.5rem;
-        margin: 2rem 0;
-        color: #ff6b9d;
-    }
-
-    .testimonial {
-        background: #fff;
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px solid #ffccd5;
-        font-style: italic;
-        color: #666;
-    }
-
-    .stat-highlight {
-        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        display: inline-block;
-        font-weight: bold;
+        text-align: center !important;
+        font-size: 1.5rem !important;
+        margin: 2rem 0 !important;
     }
 
     /* Button styling */
     .stButton > button {
-        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        padding: 0.75rem 2rem;
-        font-size: 1.1rem;
-        font-weight: bold;
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 0.75rem 2rem !important;
+        font-size: 1.1rem !important;
+        font-weight: bold !important;
+        transition: all 0.3s ease !important;
     }
 
     .stButton > button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4);
+        transform: scale(1.05) !important;
+        box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4) !important;
+    }
+
+    .stButton > button span {
+        color: white !important;
     }
 
     /* Metric cards */
     div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%);
-        border-radius: 15px;
-        padding: 1rem;
-        border: 1px solid #ffb6c1;
+        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%) !important;
+        border-radius: 15px !important;
+        padding: 1rem !important;
+        border: 1px solid #ffb6c1 !important;
     }
 
-    /* Tabs styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+    div[data-testid="metric-container"] label {
+        color: #c44569 !important;
     }
 
-    .stTabs [data-baseweb="tab"] {
-        background: #fff5f7;
-        border-radius: 10px;
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+        color: #333 !important;
+    }
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] * {
+        color: #333 !important;
     }
 
     /* Footer */
     .footer-love {
-        text-align: center;
-        color: #c44569;
-        padding: 2rem;
-        font-size: 0.9rem;
+        text-align: center !important;
+        color: #c44569 !important;
+        padding: 2rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .footer-love a {
+        color: #c44569 !important;
+    }
+
+    /* Trust badges */
+    .trust-badge {
+        text-align: center !important;
+        color: #555 !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Expander text */
+    .streamlit-expanderHeader {
+        color: #333 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -181,30 +232,29 @@ if 'show_checkout' not in st.session_state:
 with st.sidebar:
     st.markdown("### 💌 How to Export Your Chat")
     st.markdown("""
-    **From WhatsApp:**
-    1. Open your special chat 💕
-    2. Tap ⋮ → **More** → **Export chat**
-    3. Select **Without media**
-    4. Save the `.txt` file
+**From WhatsApp:**
+1. Open your special chat 💕
+2. Tap ⋮ → **More** → **Export chat**
+3. Select **Without media**
+4. Save the `.txt` file
 
-    ---
+---
 
-    **🔒 Your Privacy Matters**
-    - Chat processed securely
-    - Nothing is stored
-    - Analysis in real-time
+**🔒 Your Privacy Matters**
+- Chat processed securely
+- Nothing is stored
+- Analysis in real-time
     """)
 
     st.markdown("---")
     st.markdown("### 💝 What You'll Discover")
     st.markdown("""
-    - 💯 **Relationship Score**
-    - 💬 **Message Patterns**
-    - ⏰ **Response Times**
-    - 🎭 **Communication Traits**
-    - 📞 **Call Statistics**
-    - 📈 **Love Timeline**
-    - 🔥 **Activity Heatmaps**
+- 💯 **Relationship Score**
+- 💬 **Message Patterns**
+- ⏰ **Response Times**
+- 🎭 **Communication Traits**
+- 📞 **Call Statistics**
+- 📈 **Love Timeline**
     """)
 
 # Main content
@@ -217,39 +267,30 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
     # Hero section
     st.markdown("""
     <div class="love-card">
-        <h2 style="color: #c44569; margin-bottom: 0.5rem;">✨ Unlock Your Love Story ✨</h2>
-        <p style="color: #666; font-size: 1.1rem;">Transform your WhatsApp chats into beautiful insights about your relationship</p>
+        <h2>✨ Unlock Your Love Story ✨</h2>
+        <p>Transform your WhatsApp chats into beautiful insights about your relationship</p>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
 
-    # Features in 3 columns
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.markdown("""
+    # Features - using HTML for proper alignment
+    st.markdown("""
+    <div class="feature-container">
         <div class="feature-card">
             <h3>💯 Relationship Score</h3>
             <p>Get a comprehensive score based on your communication patterns, response times, and emotional connection.</p>
         </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
         <div class="feature-card">
             <h3>🎭 Personality Insights</h3>
             <p>Discover your communication styles, good traits, and areas where you can grow together.</p>
         </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown("""
         <div class="feature-card">
             <h3>📞 Call Analysis</h3>
             <p>See your video call patterns, longest calls, and how your connection has grown over time.</p>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
 
@@ -260,29 +301,27 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
 
     with col1:
         st.markdown("""
-        **📊 3 Beautiful Dashboards:**
-        - Main Relationship Dashboard
-        - Traits & Personality Analysis
-        - Video Call Statistics
+**📊 3 Beautiful Dashboards:**
+- Main Relationship Dashboard
+- Traits & Personality Analysis
+- Video Call Statistics
 
-        **📈 Key Metrics:**
-        - Message balance & patterns
-        - Response time analysis
-        - Topic distribution
-        - Activity heatmaps
+**📈 Key Metrics:**
+- Message balance & patterns
+- Response time analysis
+- Topic distribution
         """)
 
     with col2:
         st.markdown("""
-        **💡 Personalized Insights:**
-        - Relationship strengths
-        - Growth opportunities
-        - Communication style comparison
-        - Key relationship milestones
+**💡 Personalized Insights:**
+- Relationship strengths
+- Growth opportunities
+- Communication comparison
 
-        **📥 Downloadable:**
-        - High-quality PNG dashboards
-        - Share with your partner!
+**📥 Downloadable:**
+- High-quality PNG dashboards
+- Share with your partner!
         """)
 
     st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
@@ -290,10 +329,10 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
     # Pricing section
     st.markdown("""
     <div class="love-card">
-        <p style="color: #888; margin-bottom: 0;">One-time payment</p>
+        <p style="color: #888 !important; margin-bottom: 0;">One-time payment</p>
         <div class="price-tag">₹99</div>
         <p class="price-subtitle">Less than a cup of coffee ☕</p>
-        <p style="color: #666; margin-top: 1rem;">💳 UPI • Cards • Net Banking • Wallets</p>
+        <p style="color: #666 !important; margin-top: 1rem;">💳 UPI • Cards • Net Banking • Wallets</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -310,12 +349,12 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
             else:
                 st.error("Failed to create order. Please try again.")
 
-    # Checkout flow
+    # Checkout flow - simplified without manual payment ID
     if st.session_state.show_checkout and st.session_state.order_id:
         st.markdown("---")
         st.markdown("### 💳 Complete Your Payment")
-        st.info("Click the button below to open secure payment window")
 
+        # Razorpay checkout with auto-callback
         checkout_html = f'''
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <div id="razorpay-container" style="text-align: center; padding: 20px;">
@@ -330,6 +369,7 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
                 font-weight: bold;
                 box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
             ">💕 Pay ₹99 Now</button>
+            <p style="color: #666; margin-top: 15px;">Click to open secure payment window</p>
         </div>
         <script>
             var options = {{
@@ -340,16 +380,25 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
                 "description": "Unlock Your Love Story",
                 "order_id": "{st.session_state.order_id}",
                 "handler": function (response) {{
+                    // Store payment ID in localStorage for verification
+                    localStorage.setItem('razorpay_payment_id', response.razorpay_payment_id);
                     document.getElementById('razorpay-container').innerHTML = `
-                        <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); padding: 25px; border-radius: 15px; color: #155724;">
-                            <h3>💕 Payment Successful!</h3>
-                            <p><strong>Payment ID:</strong> ${{response.razorpay_payment_id}}</p>
-                            <p style="margin-top: 10px;">Copy the Payment ID and paste it below to unlock your analysis!</p>
+                        <div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); padding: 25px; border-radius: 15px;">
+                            <h3 style="color: #155724 !important;">💕 Payment Successful!</h3>
+                            <p style="color: #155724 !important;">Click the button below to continue</p>
+                            <p style="color: #666 !important; font-size: 12px; margin-top: 10px;">Payment ID: ${{response.razorpay_payment_id}}</p>
                         </div>
                     `;
                 }},
                 "theme": {{
                     "color": "#c44569"
+                }},
+                "modal": {{
+                    "ondismiss": function() {{
+                        document.getElementById('razorpay-container').innerHTML += `
+                            <p style="color: #dc3545; margin-top: 10px;">Payment cancelled. Click the button to try again.</p>
+                        `;
+                    }}
                 }}
             }};
             var rzp = new Razorpay(options);
@@ -359,40 +408,44 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
             }};
         </script>
         '''
-        components.html(checkout_html, height=180)
+        components.html(checkout_html, height=200)
 
         st.markdown("---")
-        st.markdown("**After payment, paste your Payment ID here:**")
-        payment_id_input = st.text_input(
-            "Payment ID",
-            placeholder="pay_xxxxxxxxxxxxx",
-            key="payment_verification",
-            label_visibility="collapsed"
-        )
+        st.markdown("**After completing payment, click below:**")
 
-        if st.button("✅ Verify & Unlock", type="primary"):
-            if payment_id_input and payment_id_input.startswith("pay_"):
-                if verify_payment_by_id(payment_id_input):
-                    st.session_state.payment_completed = True
-                    st.session_state.payment_id = payment_id_input
-                    st.session_state.show_checkout = False
-                    st.balloons()
-                    st.success("💕 Payment verified! You can now upload your chat!")
-                    st.rerun()
+        # Simplified verification - just verify the order status
+        if st.button("✅ I've Completed Payment - Continue", type="primary", use_container_width=True):
+            # Try to verify the order's payment status via Razorpay API
+            import requests
+            try:
+                response = requests.get(
+                    f"https://api.razorpay.com/v1/orders/{st.session_state.order_id}",
+                    auth=(key_id, key_secret)
+                )
+                if response.status_code == 200:
+                    order_data = response.json()
+                    if order_data.get('status') == 'paid':
+                        st.session_state.payment_completed = True
+                        st.session_state.show_checkout = False
+                        st.balloons()
+                        st.success("💕 Payment verified! Redirecting...")
+                        st.rerun()
+                    else:
+                        st.warning("Payment not yet received. Please complete the payment first, then click this button.")
                 else:
-                    st.error("Could not verify payment. Please check the ID and try again.")
-            else:
-                st.warning("Please enter a valid Payment ID (starts with 'pay_')")
+                    st.error("Could not verify payment. Please try again.")
+            except Exception as e:
+                st.error(f"Verification error. Please try again.")
 
     # Trust badges
     st.markdown("---")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("🔒 **Secure Payment**")
+        st.markdown('<p class="trust-badge">🔒 Secure Payment</p>', unsafe_allow_html=True)
     with col2:
-        st.markdown("⚡ **Instant Access**")
+        st.markdown('<p class="trust-badge">⚡ Instant Access</p>', unsafe_allow_html=True)
     with col3:
-        st.markdown("💝 **Made with Love**")
+        st.markdown('<p class="trust-badge">💝 Made with Love</p>', unsafe_allow_html=True)
 
 elif not PAYMENT_ENABLED or not razorpay_configured:
     pass  # Free access - go directly to uploader
@@ -403,7 +456,7 @@ if st.session_state.payment_completed or not PAYMENT_ENABLED or not razorpay_con
     if st.session_state.payment_completed:
         st.markdown("""
         <div class="love-card">
-            <h3 style="color: #155724;">💕 Payment Successful!</h3>
+            <h3 style="color: #155724 !important;">💕 Payment Successful!</h3>
             <p>Upload your chat below to discover your love story</p>
         </div>
         """, unsafe_allow_html=True)
@@ -603,29 +656,29 @@ else:
 
     with col1:
         st.markdown("""
-        **💕 Relationship Dashboard**
-        - Overall love score
-        - Message balance
-        - Response patterns
-        - Monthly trends
+**💕 Relationship Dashboard**
+- Overall love score
+- Message balance
+- Response patterns
+- Monthly trends
         """)
 
     with col2:
         st.markdown("""
-        **🎭 Traits Analysis**
-        - Good qualities
-        - Growth areas
-        - Personality insights
-        - Communication style
+**🎭 Traits Analysis**
+- Good qualities
+- Growth areas
+- Personality insights
+- Communication style
         """)
 
     with col3:
         st.markdown("""
-        **📞 Call Analysis**
-        - Video vs voice
-        - Duration stats
-        - Who calls more
-        - Longest calls
+**📞 Call Analysis**
+- Video vs voice
+- Duration stats
+- Who calls more
+- Longest calls
         """)
 
 # Footer
@@ -633,6 +686,6 @@ st.markdown("---")
 st.markdown("""
 <p class="footer-love">
     Made with 💕 for lovers everywhere<br>
-    <a href="https://github.com/skepticalCA/whatsapp-chat-analyzer" style="color: #c44569;">GitHub</a>
+    <a href="https://github.com/skepticalCA/whatsapp-chat-analyzer">GitHub</a>
 </p>
 """, unsafe_allow_html=True)
