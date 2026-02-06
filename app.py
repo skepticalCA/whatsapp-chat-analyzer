@@ -214,7 +214,7 @@ st.markdown("""
         -webkit-text-fill-color: #333 !important;
     }
 
-    /* File uploader */
+    /* File uploader - complete styling */
     div[data-testid="stFileUploader"] {
         background: #fff !important;
         border-radius: 10px !important;
@@ -223,6 +223,46 @@ st.markdown("""
 
     div[data-testid="stFileUploader"] * {
         color: #333 !important;
+        -webkit-text-fill-color: #333 !important;
+    }
+
+    /* File uploader dropzone */
+    div[data-testid="stFileUploader"] section {
+        background: #fff !important;
+        border: 2px dashed #ffb6c1 !important;
+        border-radius: 10px !important;
+    }
+
+    div[data-testid="stFileUploader"] section > div {
+        background: #fff !important;
+    }
+
+    div[data-testid="stFileUploader"] button {
+        background: #ffe4ec !important;
+        color: #c44569 !important;
+        -webkit-text-fill-color: #c44569 !important;
+        border: 1px solid #ffb6c1 !important;
+    }
+
+    div[data-testid="stFileUploader"] small {
+        color: #888 !important;
+        -webkit-text-fill-color: #888 !important;
+    }
+
+    /* Dropzone inner text */
+    [data-testid="stFileUploaderDropzone"] {
+        background: #fff !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] * {
+        color: #666 !important;
+        -webkit-text-fill-color: #666 !important;
+        background: transparent !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] span {
+        color: #888 !important;
+        -webkit-text-fill-color: #888 !important;
     }
 
     /* Text inputs */
@@ -498,7 +538,7 @@ if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_comp
             }};
         </script>
         '''
-        components.html(checkout_html, height=200)
+        components.html(checkout_html, height=500)
 
         st.markdown("---")
         st.markdown("**After completing payment, click below:**")
