@@ -7,6 +7,8 @@ import streamlit as st
 import tempfile
 import os
 import sys
+import gc
+import matplotlib.pyplot as plt
 from datetime import datetime
 from io import BytesIO
 import streamlit.components.v1 as components
@@ -657,26 +659,78 @@ if uploaded_file is not None:
 
             output_dir = tempfile.mkdtemp()
 
+            # Track which dashboards succeeded
+            dashboard_status = {
+                'main': False,
+                'traits': False,
+                'calls': False
+            }
+            dashboard_errors = {}
+
             status.text("🎨 Creating your love dashboard...")
             progress.progress(80)
-            main_dashboard = DashboardGenerator(messages, metrics, sentiment, topics, participant_mapping)
             main_path = os.path.join(output_dir, 'dashboard.png')
-            main_dashboard.create_dashboard(main_path)
+            try:
+                main_dashboard = DashboardGenerator(messages, metrics, sentiment, topics, participant_mapping)
+                main_dashboard.create_dashboard(main_path)
+                if os.path.exists(main_path):
+                    dashboard_status['main'] = True
+                else:
+                    dashboard_errors['main'] = "File was not created"
+            except Exception as e:
+                dashboard_errors['main'] = str(e)
+                st.warning(f"⚠️ Main dashboard generation had an issue: {str(e)[:100]}")
+            finally:
+                # Clean up memory after each dashboard
+                plt.close('all')
+                gc.collect()
 
             status.text("🎨 Crafting traits analysis...")
             progress.progress(90)
-            traits_dashboard = TraitsDashboardGenerator(traits, participant_mapping)
             traits_path = os.path.join(output_dir, 'traits_dashboard.png')
-            traits_dashboard.create_dashboard(traits_path)
+            try:
+                traits_dashboard = TraitsDashboardGenerator(traits, participant_mapping)
+                traits_dashboard.create_dashboard(traits_path)
+                if os.path.exists(traits_path):
+                    dashboard_status['traits'] = True
+                else:
+                    dashboard_errors['traits'] = "File was not created"
+            except Exception as e:
+                dashboard_errors['traits'] = str(e)
+                st.warning(f"⚠️ Traits dashboard generation had an issue: {str(e)[:100]}")
+            finally:
+                # Clean up memory after each dashboard
+                plt.close('all')
+                gc.collect()
 
             status.text("🎨 Building call insights...")
             progress.progress(95)
-            call_dashboard = VideoCallDashboard(calls, participant_mapping)
             call_path = os.path.join(output_dir, 'videocall_dashboard.png')
-            call_dashboard.create_dashboard(call_path)
+            try:
+                call_dashboard = VideoCallDashboard(calls, participant_mapping)
+                call_dashboard.create_dashboard(call_path)
+                if os.path.exists(call_path):
+                    dashboard_status['calls'] = True
+                else:
+                    dashboard_errors['calls'] = "File was not created"
+            except Exception as e:
+                dashboard_errors['calls'] = str(e)
+                st.warning(f"⚠️ Call dashboard generation had an issue: {str(e)[:100]}")
+            finally:
+                # Clean up memory after each dashboard
+                plt.close('all')
+                gc.collect()
 
             progress.progress(100)
-            status.text("💕 Your love story is ready!")
+
+            # Show status summary
+            successful = sum(dashboard_status.values())
+            if successful == 3:
+                status.text("💕 Your love story is ready!")
+            elif successful > 0:
+                status.text(f"💕 Generated {successful}/3 dashboards (some had issues)")
+            else:
+                status.text("⚠️ Dashboard generation encountered issues")
             st.balloons()
 
             st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
@@ -714,37 +768,49 @@ if uploaded_file is not None:
             tab1, tab2, tab3 = st.tabs(["💕 Main Dashboard", "🎭 Traits Analysis", "📞 Call Statistics"])
 
             with tab1:
-                st.image(main_path, use_container_width=True)
-                with open(main_path, 'rb') as f:
-                    st.download_button(
-                        "💕 Download Main Dashboard",
-                        f.read(),
-                        file_name="love_dashboard.png",
-                        mime="image/png",
-                        use_container_width=True
-                    )
+                if dashboard_status['main']:
+                    st.image(main_path, use_container_width=True)
+                    with open(main_path, 'rb') as f:
+                        st.download_button(
+                            "💕 Download Main Dashboard",
+                            f.read(),
+                            file_name="love_dashboard.png",
+                            mime="image/png",
+                            use_container_width=True
+                        )
+                else:
+                    st.error(f"💔 Main dashboard could not be generated. Error: {dashboard_errors.get('main', 'Unknown error')}")
+                    st.info("Please try again or contact support if the issue persists.")
 
             with tab2:
-                st.image(traits_path, use_container_width=True)
-                with open(traits_path, 'rb') as f:
-                    st.download_button(
-                        "💕 Download Traits Dashboard",
-                        f.read(),
-                        file_name="traits_dashboard.png",
-                        mime="image/png",
-                        use_container_width=True
-                    )
+                if dashboard_status['traits']:
+                    st.image(traits_path, use_container_width=True)
+                    with open(traits_path, 'rb') as f:
+                        st.download_button(
+                            "💕 Download Traits Dashboard",
+                            f.read(),
+                            file_name="traits_dashboard.png",
+                            mime="image/png",
+                            use_container_width=True
+                        )
+                else:
+                    st.error(f"💔 Traits dashboard could not be generated. Error: {dashboard_errors.get('traits', 'Unknown error')}")
+                    st.info("Please try again or contact support if the issue persists.")
 
             with tab3:
-                st.image(call_path, use_container_width=True)
-                with open(call_path, 'rb') as f:
-                    st.download_button(
-                        "💕 Download Call Dashboard",
-                        f.read(),
-                        file_name="call_dashboard.png",
-                        mime="image/png",
-                        use_container_width=True
-                    )
+                if dashboard_status['calls']:
+                    st.image(call_path, use_container_width=True)
+                    with open(call_path, 'rb') as f:
+                        st.download_button(
+                            "💕 Download Call Dashboard",
+                            f.read(),
+                            file_name="call_dashboard.png",
+                            mime="image/png",
+                            use_container_width=True
+                        )
+                else:
+                    st.error(f"💔 Call dashboard could not be generated. Error: {dashboard_errors.get('calls', 'Unknown error')}")
+                    st.info("Please try again or contact support if the issue persists.")
 
             with st.expander("📋 Detailed Statistics"):
                 col1, col2 = st.columns(2)
