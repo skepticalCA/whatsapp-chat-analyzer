@@ -35,65 +35,81 @@ st.set_page_config(
     layout="wide"
 )
 
-# Fixed CSS with proper alignment and mobile visibility
+# Fixed CSS - works in both light and dark mode
 st.markdown("""
 <style>
-    /* Force dark text everywhere for visibility */
-    * {
+    /* Force light background for main content area */
+    .stApp {
+        background-color: #fff5f7 !important;
+    }
+
+    section[data-testid="stSidebar"] {
+        background-color: #ffe4ec !important;
+    }
+
+    section[data-testid="stSidebar"] * {
         color: #333 !important;
     }
 
-    /* Main romantic theme */
+    section[data-testid="stSidebar"] .stMarkdown {
+        color: #333 !important;
+    }
+
+    /* Main header */
     .main-header {
-        font-size: 2.5rem !important;
+        font-size: 2.2rem !important;
         font-weight: bold !important;
         text-align: center !important;
         padding: 1rem !important;
-        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #ff6b9d 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
+        color: #c44569 !important;
+        background: none !important;
+        -webkit-text-fill-color: #c44569 !important;
     }
 
     @media (min-width: 768px) {
         .main-header {
-            font-size: 3.5rem !important;
+            font-size: 3rem !important;
         }
     }
 
     .sub-header {
         text-align: center !important;
-        color: #c44569 !important;
+        color: #e75480 !important;
         margin-bottom: 2rem !important;
         font-size: 1rem !important;
+        -webkit-text-fill-color: #e75480 !important;
     }
 
-    @media (min-width: 768px) {
-        .sub-header {
-            font-size: 1.2rem !important;
-        }
-    }
-
+    /* Love card - solid background */
     .love-card {
-        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%) !important;
+        background: #fff !important;
         padding: 1.5rem !important;
         border-radius: 20px !important;
         border: 2px solid #ffb6c1 !important;
         text-align: center !important;
         margin: 1rem 0 !important;
-        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2) !important;
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3) !important;
     }
 
-    .love-card h2, .love-card h3 {
+    .love-card h2 {
         color: #c44569 !important;
+        -webkit-text-fill-color: #c44569 !important;
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .love-card h3 {
+        color: #c44569 !important;
+        -webkit-text-fill-color: #c44569 !important;
         margin-bottom: 0.5rem !important;
     }
 
     .love-card p {
-        color: #555 !important;
+        color: #444 !important;
+        -webkit-text-fill-color: #444 !important;
     }
 
-    /* Feature cards container - flexbox for equal heights */
+    /* Feature cards container */
     .feature-container {
         display: flex !important;
         gap: 1rem !important;
@@ -103,26 +119,32 @@ st.markdown("""
     }
 
     .feature-card {
-        background: linear-gradient(135deg, #fff0f3 0%, #ffe8ed 100%) !important;
+        background: #fff !important;
         padding: 1.5rem !important;
         border-radius: 15px !important;
         border-left: 4px solid #ff6b9d !important;
+        border-top: 1px solid #ffccd5 !important;
+        border-right: 1px solid #ffccd5 !important;
+        border-bottom: 1px solid #ffccd5 !important;
         flex: 1 1 280px !important;
         max-width: 350px !important;
-        min-height: 180px !important;
+        min-height: 160px !important;
         display: flex !important;
         flex-direction: column !important;
+        box-shadow: 0 2px 10px rgba(255, 107, 157, 0.15) !important;
     }
 
     .feature-card h3 {
         color: #c44569 !important;
-        font-size: 1.2rem !important;
+        -webkit-text-fill-color: #c44569 !important;
+        font-size: 1.1rem !important;
         margin-bottom: 0.75rem !important;
     }
 
     .feature-card p {
         color: #555 !important;
-        font-size: 0.95rem !important;
+        -webkit-text-fill-color: #555 !important;
+        font-size: 0.9rem !important;
         line-height: 1.5 !important;
         flex-grow: 1 !important;
     }
@@ -131,11 +153,13 @@ st.markdown("""
         font-size: 3rem !important;
         font-weight: bold !important;
         color: #c44569 !important;
+        -webkit-text-fill-color: #c44569 !important;
         text-align: center !important;
     }
 
     .price-subtitle {
         color: #666 !important;
+        -webkit-text-fill-color: #666 !important;
         text-align: center !important;
         font-size: 0.9rem !important;
     }
@@ -143,7 +167,7 @@ st.markdown("""
     .heart-divider {
         text-align: center !important;
         font-size: 1.5rem !important;
-        margin: 2rem 0 !important;
+        margin: 1.5rem 0 !important;
     }
 
     /* Button styling */
@@ -153,23 +177,28 @@ st.markdown("""
         border: none !important;
         border-radius: 25px !important;
         padding: 0.75rem 2rem !important;
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
         font-weight: bold !important;
-        transition: all 0.3s ease !important;
     }
 
     .stButton > button:hover {
-        transform: scale(1.05) !important;
         box-shadow: 0 5px 20px rgba(255, 107, 157, 0.4) !important;
     }
 
-    .stButton > button span {
+    .stButton > button span, .stButton > button p {
         color: white !important;
+        -webkit-text-fill-color: white !important;
+    }
+
+    /* All markdown text in main area */
+    .stMarkdown, .stMarkdown p, .stMarkdown li, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+        color: #333 !important;
+        -webkit-text-fill-color: #333 !important;
     }
 
     /* Metric cards */
     div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%) !important;
+        background: #fff !important;
         border-radius: 15px !important;
         padding: 1rem !important;
         border: 1px solid #ffb6c1 !important;
@@ -177,39 +206,100 @@ st.markdown("""
 
     div[data-testid="metric-container"] label {
         color: #c44569 !important;
+        -webkit-text-fill-color: #c44569 !important;
     }
 
     div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
         color: #333 !important;
+        -webkit-text-fill-color: #333 !important;
     }
 
-    /* Sidebar text */
-    section[data-testid="stSidebar"] * {
+    /* File uploader */
+    div[data-testid="stFileUploader"] {
+        background: #fff !important;
+        border-radius: 10px !important;
+        padding: 1rem !important;
+    }
+
+    div[data-testid="stFileUploader"] * {
         color: #333 !important;
+    }
+
+    /* Text inputs */
+    .stTextInput > div > div {
+        background: #fff !important;
+    }
+
+    .stTextInput input {
+        color: #333 !important;
+        background: #fff !important;
+    }
+
+    /* Info/warning/error boxes */
+    .stAlert {
+        background: #fff !important;
+    }
+
+    .stAlert * {
+        color: #333 !important;
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background: #fff !important;
+        gap: 4px !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        background: #ffe4ec !important;
+        color: #333 !important;
+    }
+
+    .stTabs [data-baseweb="tab"] * {
+        color: #333 !important;
+    }
+
+    /* Expander */
+    .streamlit-expanderHeader {
+        background: #fff !important;
+        color: #333 !important;
+    }
+
+    .streamlit-expanderContent {
+        background: #fff !important;
     }
 
     /* Footer */
     .footer-love {
         text-align: center !important;
-        color: #c44569 !important;
         padding: 2rem !important;
-        font-size: 0.9rem !important;
     }
 
-    .footer-love a {
+    .footer-love, .footer-love * {
         color: #c44569 !important;
+        -webkit-text-fill-color: #c44569 !important;
     }
 
     /* Trust badges */
     .trust-badge {
         text-align: center !important;
         color: #555 !important;
+        -webkit-text-fill-color: #555 !important;
         font-size: 0.9rem !important;
     }
 
-    /* Expander text */
-    .streamlit-expanderHeader {
-        color: #333 !important;
+    /* Success message */
+    .stSuccess {
+        background: #d4edda !important;
+    }
+
+    .stSuccess * {
+        color: #155724 !important;
+    }
+
+    /* Progress bar */
+    .stProgress > div > div {
+        background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%) !important;
     }
 </style>
 """, unsafe_allow_html=True)
