@@ -21,23 +21,27 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from chat_parser import parse_whatsapp_chat, Message, MessageType
 
 
-# Romantic Love Theme Color Palette
+# Romantic Love Theme Color Palette - Soft & Dreamy
 COLORS = {
-    'background': '#fff5f7',       # Soft pink background
+    'background': '#fef7f9',       # Softer blush background
     'card_bg': '#ffffff',          # White cards
-    'card_border': '#ffb6c1',      # Light pink border
-    'text_primary': '#4a3540',     # Dark rose text
-    'text_secondary': '#7d6070',   # Muted rose text
-    'text_muted': '#b8a0aa',       # Light muted text
-    'video_call': '#a855f7',       # Purple for video
-    'voice_call': '#06b6d4',       # Cyan for voice
-    'missed': '#f43f5e',           # Rose red for missed
-    'person1': '#6366f1',          # Indigo
-    'person2': '#ec4899',          # Pink
-    'gold': '#f59e0b',             # Warm gold
-    'green': '#10b981',            # Teal green
-    'love_pink': '#ff6b9d',        # Love pink
-    'love_dark': '#c44569',        # Dark rose
+    'card_border': '#ffc0cb',      # Soft pink border
+    'card_shadow': '#ffe4ec',      # Pink shadow effect
+    'text_primary': '#5c4a52',     # Warm dark text
+    'text_secondary': '#8b7580',   # Muted rose text
+    'text_muted': '#c4b0b8',       # Light muted text
+    'video_call': '#c084fc',       # Soft lavender for video
+    'voice_call': '#22d3ee',       # Soft cyan for voice
+    'missed': '#fda4af',           # Soft coral for missed
+    'person1': '#818cf8',          # Soft indigo
+    'person2': '#f472b6',          # Rose pink
+    'gold': '#fbbf24',             # Warm gold
+    'green': '#4ade80',            # Soft mint green
+    'love_pink': '#ff85a2',        # Romantic pink
+    'love_light': '#ffb3c6',       # Light romantic pink
+    'love_dark': '#db2777',        # Deep magenta
+    'gradient_start': '#fce7f3',   # Gradient start
+    'gradient_end': '#ddd6fe',     # Gradient end
 }
 
 
@@ -355,14 +359,14 @@ class VideoCallDashboard:
         plt.close()
         print(f"Video call dashboard saved to {output_path}")
 
-    def _setup_card(self, ax, title: str = None, title_color=None):
+    def _setup_card(self, ax, title: str = None, title_color=None, icon: str = "💕"):
         ax.set_facecolor(COLORS['card_bg'])
         for spine in ax.spines.values():
             spine.set_color(COLORS['card_border'])
-            spine.set_linewidth(2)
+            spine.set_linewidth(2.5)
         if title:
-            ax.set_title(f"💕 {title}", color=title_color or COLORS['love_dark'],
-                        fontsize=12, fontweight='bold', loc='left', pad=10)
+            ax.set_title(f"{icon} {title}", color=title_color or COLORS['love_dark'],
+                        fontsize=13, fontweight='bold', loc='left', pad=12)
 
     def _render_header(self, ax):
         ax.set_facecolor(COLORS['background'])
@@ -371,100 +375,125 @@ class VideoCallDashboard:
         summary = self.analyzer.get_call_summary()
         total_hours = summary['total_call_time_hours']
 
-        ax.text(0.5, 0.70, "📞 Your Calls Together 💕", fontsize=28,
+        # Decorative elements
+        ax.text(0.08, 0.50, "📞", fontsize=32, ha='center', va='center',
+                transform=ax.transAxes, alpha=0.6)
+        ax.text(0.92, 0.50, "💕", fontsize=32, ha='center', va='center',
+                transform=ax.transAxes, alpha=0.6)
+
+        # Top subtitle
+        ax.text(0.5, 0.78, "✨ Every Call Brings You Closer ✨", fontsize=14,
+                color=COLORS['love_pink'], ha='center', va='center',
+                transform=ax.transAxes)
+
+        # Main title
+        ax.text(0.5, 0.55, "Your Calls Together", fontsize=32,
                 color=COLORS['love_dark'], ha='center', va='center',
                 fontweight='bold', transform=ax.transAxes)
 
-        ax.text(0.5, 0.38, f"{summary['total_calls']:,} calls | {total_hours:.1f} hours of connection",
-                fontsize=16, color=COLORS['love_pink'], ha='center', va='center',
+        # Stats line
+        ax.text(0.5, 0.32, f"📞 {summary['total_calls']:,} calls  •  ⏱️ {total_hours:.1f} hours of connection",
+                fontsize=14, color=COLORS['text_primary'], ha='center', va='center',
                 fontweight='bold', transform=ax.transAxes)
 
+        # Names
         p1 = self.get_display_name(self.participants[0])
         p2 = self.get_display_name(self.participants[1]) if len(self.participants) > 1 else ""
-        ax.text(0.5, 0.10, f"💕 {p1} & {p2} 💕", fontsize=14,
-                color=COLORS['text_secondary'], ha='center', transform=ax.transAxes)
+        ax.text(0.5, 0.10, f"💙 {p1}  &  {p2} 💖", fontsize=13,
+                color=COLORS['text_secondary'], ha='center', transform=ax.transAxes,
+                fontstyle='italic')
 
     def _render_summary(self, ax):
-        self._setup_card(ax, "Call Summary")
+        self._setup_card(ax, "Call Summary", icon="📊")
         ax.axis('off')
 
         summary = self.analyzer.get_call_summary()
 
         metrics = [
-            ("Total Calls", f"{summary['total_calls']:,}", COLORS['video_call']),
-            ("Video Calls", f"{summary['total_video_calls']:,}", COLORS['video_call']),
-            ("Voice Calls", f"{summary['total_voice_calls']:,}", COLORS['voice_call']),
-            ("Total Time", f"{summary['total_call_time_hours']:.1f} hrs", COLORS['gold']),
-            ("Answer Rate", f"{summary['answer_rate']:.1f}%", COLORS['green']),
-            ("Missed Calls", f"{summary['total_missed']:,}", COLORS['missed']),
+            ("📞 Total Calls", f"{summary['total_calls']:,}", COLORS['love_dark']),
+            ("🎥 Video Calls", f"{summary['total_video_calls']:,}", COLORS['video_call']),
+            ("🎙️ Voice Calls", f"{summary['total_voice_calls']:,}", COLORS['voice_call']),
+            ("⏱️ Total Time", f"{summary['total_call_time_hours']:.1f} hrs", COLORS['gold']),
+            ("✅ Answer Rate", f"{summary['answer_rate']:.0f}%", COLORS['green']),
+            ("📵 Missed", f"{summary['total_missed']:,}", COLORS['missed']),
         ]
 
         y_pos = 0.85
         for label, value, color in metrics:
-            ax.text(0.1, y_pos, label, fontsize=10, color=COLORS['text_secondary'],
+            ax.text(0.08, y_pos, label, fontsize=10, color=COLORS['text_secondary'],
                    transform=ax.transAxes)
-            ax.text(0.9, y_pos, value, fontsize=11, color=color,
+            ax.text(0.92, y_pos, value, fontsize=12, color=color,
                    fontweight='bold', ha='right', transform=ax.transAxes)
-            y_pos -= 0.14
+            y_pos -= 0.135
 
     def _render_call_types(self, ax):
-        self._setup_card(ax, "Call Type Breakdown")
+        self._setup_card(ax, "Call Types", icon="📊")
 
         summary = self.analyzer.get_call_summary()
 
-        labels = ['Video Calls', 'Voice Calls', 'Missed Video', 'Missed Voice']
+        labels = ['🎥 Video', '🎙️ Voice', '📵 Missed Video', '📵 Missed Voice']
         sizes = [
             summary['total_video_calls'],
             summary['total_voice_calls'],
             summary['missed_video_calls'],
             summary['missed_voice_calls']
         ]
-        colors = [COLORS['video_call'], COLORS['voice_call'], '#7c3aed', '#ef4444']
+        colors = [COLORS['video_call'], COLORS['voice_call'], '#c084fc', COLORS['missed']]
 
         # Filter out zeros
         filtered = [(l, s, c) for l, s, c in zip(labels, sizes, colors) if s > 0]
         if filtered:
             labels, sizes, colors = zip(*filtered)
+            # Create donut chart
             wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.0f%%',
-                                              colors=colors, startangle=90)
+                                              colors=colors, startangle=90,
+                                              pctdistance=0.75, wedgeprops={'width': 0.5,
+                                              'edgecolor': 'white', 'linewidth': 2})
             for autotext in autotexts:
                 autotext.set_color('white')
                 autotext.set_fontsize(9)
+                autotext.set_fontweight('bold')
+
+            # Center emoji
+            ax.text(0, 0, "📞", fontsize=18, ha='center', va='center')
 
             ax.legend(wedges, labels, loc='center left', bbox_to_anchor=(0.85, 0.5),
-                     fontsize=8, frameon=False, labelcolor=COLORS['text_secondary'])
+                     fontsize=9, frameon=False, labelcolor=COLORS['text_secondary'])
 
     def _render_by_person(self, ax):
-        self._setup_card(ax, "Who Initiates Calls")
+        self._setup_card(ax, "Who Calls First", icon="📱")
         ax.axis('off')
 
         by_person = self.analyzer.get_calls_by_person()
 
-        y_pos = 0.8
+        y_pos = 0.82
         total_calls = sum(p['total_calls'] for p in by_person.values())
 
         for i, (sender, stats) in enumerate(by_person.items()):
             name = self.get_display_name(sender)
             color = COLORS['person1'] if i == 0 else COLORS['person2']
+            emoji = "💙" if i == 0 else "💖"
             pct = (stats['total_calls'] / max(total_calls, 1)) * 100
 
-            ax.text(0.1, y_pos, name, fontsize=12, color=color,
+            ax.text(0.08, y_pos, f"{emoji} {name}", fontsize=11, color=color,
                    fontweight='bold', transform=ax.transAxes)
 
-            # Progress bar
-            bar_width = pct / 100 * 0.6
-            ax.add_patch(mpatches.Rectangle((0.1, y_pos - 0.12), 0.6, 0.06,
-                        facecolor=COLORS['card_border'], transform=ax.transAxes))
-            ax.add_patch(mpatches.Rectangle((0.1, y_pos - 0.12), bar_width, 0.06,
-                        facecolor=color, transform=ax.transAxes))
+            # Progress bar with rounded look
+            ax.add_patch(mpatches.FancyBboxPatch((0.08, y_pos - 0.13), 0.65, 0.07,
+                        boxstyle="round,pad=0.02", facecolor=COLORS['card_shadow'],
+                        transform=ax.transAxes))
+            bar_width = pct / 100 * 0.65
+            ax.add_patch(mpatches.FancyBboxPatch((0.08, y_pos - 0.13), bar_width, 0.07,
+                        boxstyle="round,pad=0.02", facecolor=color, alpha=0.8,
+                        transform=ax.transAxes))
 
-            ax.text(0.75, y_pos - 0.09, f"{stats['total_calls']} ({pct:.0f}%)",
-                   fontsize=10, color=COLORS['text_secondary'],
+            ax.text(0.78, y_pos - 0.10, f"{stats['total_calls']} ({pct:.0f}%)",
+                   fontsize=10, color=color, fontweight='bold',
                    transform=ax.transAxes, va='center')
 
-            # Call time
+            # Call time with clock emoji
             total_time = (stats['total_video_time'] + stats['total_voice_time']) / 3600
-            ax.text(0.1, y_pos - 0.22, f"  Total time: {total_time:.1f} hrs",
+            ax.text(0.08, y_pos - 0.24, f"  ⏱️ {total_time:.1f} hours on calls",
                    fontsize=9, color=COLORS['text_muted'], transform=ax.transAxes)
 
             y_pos -= 0.45
@@ -548,60 +577,68 @@ class VideoCallDashboard:
                    str(val), va='center', fontsize=8, color=COLORS['text_secondary'])
 
     def _render_heatmap(self, ax):
-        self._setup_card(ax, "When You Call Each Other")
+        self._setup_card(ax, "When You Connect", icon="🕐")
 
         heatmap = self.analyzer.get_call_heatmap()
-        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat ✨', 'Sun ✨']
 
-        # Romantic pink colormap
+        # Beautiful romantic gradient colormap
         from matplotlib.colors import LinearSegmentedColormap
-        romantic_colors = ['#fff5f7', '#ffe4ec', '#ffb6c1', '#ff6b9d', '#c44569']
+        romantic_colors = ['#fef7f9', '#fce7f3', '#fbcfe8', '#f9a8d4', '#f472b6', '#ec4899', '#db2777']
         romantic_cmap = LinearSegmentedColormap.from_list('romantic', romantic_colors)
 
         sns.heatmap(heatmap, ax=ax, cmap=romantic_cmap, cbar=True,
                    xticklabels=[f'{h}' for h in range(24)],
-                   yticklabels=days, linewidths=0.5, linecolor='#ffe4ec')
+                   yticklabels=days, linewidths=0.8, linecolor='#fff0f3',
+                   cbar_kws={'label': 'Calls', 'shrink': 0.8})
 
-        ax.set_xlabel('Hour of Day', color=COLORS['text_secondary'], fontsize=10)
-        ax.tick_params(colors=COLORS['text_secondary'], labelsize=8)
+        ax.set_xlabel('Hour of Day 🕐', color=COLORS['text_secondary'], fontsize=11)
+        ax.tick_params(colors=COLORS['text_secondary'], labelsize=9)
 
     def _render_longest_calls(self, ax):
-        self._setup_card(ax, "Top 10 Longest Calls")
+        self._setup_card(ax, "Your Longest Calls", icon="🏆")
         ax.axis('off')
 
         longest = self.analyzer.get_longest_calls(10)
 
         if not longest:
-            ax.text(0.5, 0.5, "No call duration data available",
-                   color=COLORS['text_muted'], ha='center', transform=ax.transAxes)
+            ax.text(0.5, 0.5, "✨ Start making memories together! ✨",
+                   color=COLORS['love_pink'], ha='center', transform=ax.transAxes,
+                   fontsize=12, fontstyle='italic')
             return
 
-        # Headers
+        # Headers with subtle styling
         ax.text(0.02, 0.92, "#", fontsize=9, color=COLORS['text_muted'],
                fontweight='bold', transform=ax.transAxes)
-        ax.text(0.08, 0.92, "Date", fontsize=9, color=COLORS['text_muted'],
+        ax.text(0.08, 0.92, "📅 Date", fontsize=9, color=COLORS['text_muted'],
                fontweight='bold', transform=ax.transAxes)
-        ax.text(0.30, 0.92, "Time", fontsize=9, color=COLORS['text_muted'],
+        ax.text(0.30, 0.92, "🕐 Time", fontsize=9, color=COLORS['text_muted'],
                fontweight='bold', transform=ax.transAxes)
         ax.text(0.48, 0.92, "Type", fontsize=9, color=COLORS['text_muted'],
                fontweight='bold', transform=ax.transAxes)
-        ax.text(0.62, 0.92, "Duration", fontsize=9, color=COLORS['text_muted'],
+        ax.text(0.62, 0.92, "⏱️ Duration", fontsize=9, color=COLORS['text_muted'],
                fontweight='bold', transform=ax.transAxes)
         ax.text(0.82, 0.92, "Started By", fontsize=9, color=COLORS['text_muted'],
                fontweight='bold', transform=ax.transAxes)
 
+        # Medal emojis for top 3
+        medals = ["🥇", "🥈", "🥉"]
+
         y_pos = 0.82
         for i, call in enumerate(longest, 1):
             color = COLORS['gold'] if i <= 3 else COLORS['text_secondary']
+            rank = medals[i-1] if i <= 3 else str(i)
 
-            ax.text(0.02, y_pos, str(i), fontsize=9, color=color, transform=ax.transAxes)
+            ax.text(0.02, y_pos, rank, fontsize=10 if i <= 3 else 9, color=color,
+                   transform=ax.transAxes)
             ax.text(0.08, y_pos, call['date'], fontsize=9, color=COLORS['text_secondary'],
                    transform=ax.transAxes)
             ax.text(0.30, y_pos, call['time'], fontsize=9, color=COLORS['text_secondary'],
                    transform=ax.transAxes)
 
+            type_emoji = "🎥" if call['type'] == 'Video' else "🎙️"
             type_color = COLORS['video_call'] if call['type'] == 'Video' else COLORS['voice_call']
-            ax.text(0.48, y_pos, call['type'], fontsize=9, color=type_color,
+            ax.text(0.48, y_pos, f"{type_emoji}", fontsize=10, color=type_color,
                    transform=ax.transAxes)
 
             ax.text(0.62, y_pos, call['duration_str'], fontsize=9, color=color,
@@ -609,30 +646,30 @@ class VideoCallDashboard:
             ax.text(0.82, y_pos, call['initiated_by'], fontsize=9,
                    color=COLORS['text_secondary'], transform=ax.transAxes)
 
-            y_pos -= 0.085
+            y_pos -= 0.082
 
     def _render_streaks(self, ax):
-        self._setup_card(ax, "Call Streaks")
+        self._setup_card(ax, "Call Streaks", icon="🔥")
         ax.axis('off')
 
         streaks = self.analyzer.get_call_streaks()
 
         metrics = [
-            ("Longest Streak", f"{streaks['longest_streak']} days", COLORS['gold']),
-            ("Current Streak", f"{streaks['current_streak']} days", COLORS['green']),
-            ("Days with Calls", f"{streaks['total_call_days']}", COLORS['video_call']),
+            ("🔥 Longest Streak", f"{streaks['longest_streak']} days", COLORS['gold']),
+            ("⚡ Current Streak", f"{streaks['current_streak']} days", COLORS['green']),
+            ("📅 Days with Calls", f"{streaks['total_call_days']}", COLORS['video_call']),
         ]
 
         y_pos = 0.75
         for label, value, color in metrics:
-            ax.text(0.1, y_pos, label, fontsize=11, color=COLORS['text_secondary'],
+            ax.text(0.08, y_pos, label, fontsize=11, color=COLORS['text_secondary'],
                    transform=ax.transAxes)
-            ax.text(0.9, y_pos, value, fontsize=14, color=color,
+            ax.text(0.92, y_pos, value, fontsize=15, color=color,
                    fontweight='bold', ha='right', transform=ax.transAxes)
             y_pos -= 0.25
 
     def _render_fun_facts(self, ax):
-        self._setup_card(ax, "Call Fun Facts")
+        self._setup_card(ax, "Fun Facts", icon="✨")
         ax.axis('off')
 
         summary = self.analyzer.get_call_summary()
@@ -642,37 +679,37 @@ class VideoCallDashboard:
 
         # Total time in different units
         total_hours = summary['total_call_time_hours']
-        facts.append(f"Total call time: {total_hours:.1f} hours = {total_hours/24:.1f} full days!")
+        facts.append(f"⏱️ Total call time: {total_hours:.1f} hours = {total_hours/24:.1f} full days!")
 
         # Average per month
         monthly = self.analyzer.get_monthly_call_trends()
         if monthly:
             avg_calls = summary['total_calls'] / len(monthly)
             avg_hours = total_hours / len(monthly)
-            facts.append(f"Average: {avg_calls:.0f} calls and {avg_hours:.1f} hours per month")
+            facts.append(f"📊 Average: {avg_calls:.0f} calls & {avg_hours:.1f} hrs/month")
 
         # Longest call
         if longest:
-            facts.append(f"Longest call: {longest[0]['duration_str']} on {longest[0]['date']}")
+            facts.append(f"🏆 Longest call: {longest[0]['duration_str']} on {longest[0]['date']}")
 
         # Most active hour
         hourly = self.analyzer.get_hourly_distribution()
         if hourly:
             peak_hour = max(hourly.items(), key=lambda x: x[1])
             time_str = f"{peak_hour[0]}:00" if peak_hour[0] >= 10 else f"0{peak_hour[0]}:00"
-            facts.append(f"Most calls happen around {time_str} ({peak_hour[1]} calls)")
+            facts.append(f"🕐 Most calls around {time_str} ({peak_hour[1]} calls)")
 
         # Video vs Voice preference
         if summary['total_video_calls'] > summary['total_voice_calls'] * 1.5:
-            facts.append("You clearly prefer video calls over voice calls!")
+            facts.append("🎥 You love seeing each other's faces!")
         elif summary['total_voice_calls'] > summary['total_video_calls'] * 1.5:
-            facts.append("You prefer voice calls - keeping it simple!")
+            facts.append("🎙️ Voice calls are your thing - sweet & simple!")
 
-        y_pos = 0.8
+        y_pos = 0.82
         for fact in facts[:5]:
-            ax.text(0.05, y_pos, f"* {fact}", fontsize=10,
-                   color=COLORS['text_secondary'], transform=ax.transAxes, wrap=True)
-            y_pos -= 0.18
+            ax.text(0.05, y_pos, fact, fontsize=10,
+                   color=COLORS['text_secondary'], transform=ax.transAxes)
+            y_pos -= 0.17
 
 
 def main():

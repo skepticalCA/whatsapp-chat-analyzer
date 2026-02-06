@@ -16,28 +16,32 @@ from topic_classifier import TopicClassifier
 from sentiment_analyzer import SentimentAnalyzer
 
 
-# Romantic Love Theme Color Palette
+# Romantic Love Theme Color Palette - Soft & Dreamy
 COLORS = {
-    'background': '#fff5f7',       # Soft pink background
+    'background': '#fef7f9',       # Softer blush background
     'card_bg': '#ffffff',          # White cards
-    'card_border': '#ffb6c1',      # Light pink border
-    'text_primary': '#4a3540',     # Dark rose text
-    'text_secondary': '#7d6070',   # Muted rose text
-    'text_muted': '#b8a0aa',       # Light muted text
-    'accent_green': '#10b981',     # Teal green for positive
-    'accent_orange': '#f97316',    # Warm orange
-    'accent_purple': '#a855f7',    # Soft purple
-    'accent_pink': '#ec4899',      # Hot pink
-    'accent_blue': '#6366f1',      # Soft indigo
-    'accent_cyan': '#06b6d4',      # Cyan
-    'accent_red': '#f43f5e',       # Rose red
-    'accent_rose': '#fb7185',      # Soft rose
-    'person1': '#6366f1',          # Indigo for Person 1
-    'person2': '#ec4899',          # Pink for Person 2
-    'love_pink': '#ff6b9d',        # Love pink
-    'love_dark': '#c44569',        # Dark rose
-    'heart_red': '#e11d48',        # Heart red
-    'chart_colors': ['#ec4899', '#6366f1', '#10b981', '#f97316', '#a855f7', '#06b6d4', '#f43f5e']
+    'card_border': '#ffc0cb',      # Soft pink border
+    'card_shadow': '#ffe4ec',      # Pink shadow effect
+    'text_primary': '#5c4a52',     # Warm dark text
+    'text_secondary': '#8b7580',   # Muted rose text
+    'text_muted': '#c4b0b8',       # Light muted text
+    'accent_green': '#4ade80',     # Soft mint green
+    'accent_orange': '#fb923c',    # Warm peach
+    'accent_purple': '#c084fc',    # Soft lavender
+    'accent_pink': '#f472b6',      # Rose pink
+    'accent_blue': '#818cf8',      # Soft periwinkle
+    'accent_cyan': '#22d3ee',      # Soft cyan
+    'accent_red': '#fb7185',       # Soft coral
+    'accent_rose': '#fda4af',      # Blush rose
+    'person1': '#818cf8',          # Soft indigo for Person 1
+    'person2': '#f472b6',          # Rose pink for Person 2
+    'love_pink': '#ff85a2',        # Romantic pink
+    'love_light': '#ffb3c6',       # Light romantic pink
+    'love_dark': '#db2777',        # Deep magenta
+    'heart_red': '#f43f5e',        # Heart red
+    'gradient_start': '#fce7f3',   # Gradient start (soft pink)
+    'gradient_end': '#ddd6fe',     # Gradient end (soft purple)
+    'chart_colors': ['#f472b6', '#818cf8', '#4ade80', '#fb923c', '#c084fc', '#22d3ee', '#fda4af']
 }
 
 
@@ -126,133 +130,167 @@ class DashboardGenerator:
         plt.close()
         print(f"Dashboard saved to {output_path}")
 
-    def _setup_card(self, ax, title: str = None):
-        """Set up a card-style subplot with light romantic background."""
+    def _setup_card(self, ax, title: str = None, icon: str = "💕"):
+        """Set up a card-style subplot with romantic styling."""
         ax.set_facecolor(COLORS['card_bg'])
         for spine in ax.spines.values():
             spine.set_color(COLORS['card_border'])
-            spine.set_linewidth(2)
+            spine.set_linewidth(2.5)
         ax.tick_params(colors=COLORS['text_secondary'])
 
         if title:
-            ax.set_title(f"💕 {title}", color=COLORS['love_dark'], fontsize=12,
-                        fontweight='bold', loc='left', pad=10)
+            ax.set_title(f"{icon} {title}", color=COLORS['love_dark'], fontsize=13,
+                        fontweight='bold', loc='left', pad=12,
+                        fontfamily='sans-serif')
 
     def _render_header(self, ax):
-        """Render title and date range with romantic styling."""
+        """Render beautiful romantic header with decorative elements."""
         ax.set_facecolor(COLORS['background'])
         ax.axis('off')
 
         # Get date range
         start, end = self.metrics.get_date_range()
-        date_range = f"From {start.strftime('%d %b %Y')} - {end.strftime('%d %b %Y')}"
+        days_together = (end - start).days
+        date_range = f"{start.strftime('%b %d, %Y')} — {end.strftime('%b %d, %Y')}"
 
         # Get display names
         names = list(self.participant_mapping.values())
-        title_text = f"💕 {names[0]} & {names[1]}'s Love Story 💕" if len(names) >= 2 else "Your Love Story 💕"
+        title_text = f"{names[0]} & {names[1]}" if len(names) >= 2 else "Your Love Story"
 
-        # Title with romantic styling
-        ax.text(0.5, 0.7, title_text, fontsize=28,
+        # Decorative hearts on sides
+        ax.text(0.08, 0.55, "💕", fontsize=32, ha='center', va='center',
+                transform=ax.transAxes, alpha=0.6)
+        ax.text(0.92, 0.55, "💕", fontsize=32, ha='center', va='center',
+                transform=ax.transAxes, alpha=0.6)
+
+        # Main title with romantic styling
+        ax.text(0.5, 0.72, "✨ Your Love Story ✨", fontsize=18,
+                color=COLORS['love_pink'], ha='center', va='center',
+                fontweight='normal', transform=ax.transAxes, alpha=0.9)
+
+        ax.text(0.5, 0.50, title_text, fontsize=34,
                 color=COLORS['love_dark'], ha='center', va='center',
                 fontweight='bold', transform=ax.transAxes)
 
-        # Subtitle
-        ax.text(0.5, 0.35, date_range, fontsize=14,
+        # Date range with heart
+        ax.text(0.5, 0.28, f"💖 {date_range} 💖", fontsize=13,
                 color=COLORS['text_secondary'], ha='center', va='center',
                 transform=ax.transAxes)
 
-        # Heart decoration
-        ax.text(0.5, 0.05, "❤️ 💕 ❤️", fontsize=18, ha='center', va='center',
-                transform=ax.transAxes)
+        # Days together stat
+        ax.text(0.5, 0.08, f"✨ {days_together} days of love ✨", fontsize=11,
+                color=COLORS['love_pink'], ha='center', va='center',
+                transform=ax.transAxes, fontstyle='italic')
 
     def _render_relationship_rating(self, ax):
-        """Render rating box with score and romantic styling."""
-        self._setup_card(ax, "LOVE SCORE")
+        """Render beautiful love score with decorative heart design."""
+        self._setup_card(ax, "LOVE SCORE", icon="💖")
         ax.axis('off')
 
         label, desc, score = self.sentiment.calculate_relationship_rating()
 
-        # Heart-shaped score display with gradient circle
-        circle = plt.Circle((0.5, 0.6), 0.25, color=COLORS['love_pink'],
-                            fill=False, linewidth=5, transform=ax.transAxes)
+        # Outer decorative ring
+        circle_outer = plt.Circle((0.5, 0.58), 0.28, color=COLORS['love_light'],
+                                  fill=False, linewidth=3, transform=ax.transAxes,
+                                  linestyle='--', alpha=0.5)
+        ax.add_patch(circle_outer)
+
+        # Main score circle with gradient effect
+        circle = plt.Circle((0.5, 0.58), 0.24, color=COLORS['love_pink'],
+                            fill=False, linewidth=6, transform=ax.transAxes)
         ax.add_patch(circle)
 
-        # Inner fill
-        circle_fill = plt.Circle((0.5, 0.6), 0.23, color=COLORS['love_pink'],
-                                 alpha=0.15, transform=ax.transAxes)
+        # Inner soft fill
+        circle_fill = plt.Circle((0.5, 0.58), 0.22, color=COLORS['gradient_start'],
+                                 alpha=0.4, transform=ax.transAxes)
         ax.add_patch(circle_fill)
 
-        # Score text with heart
-        ax.text(0.5, 0.62, f"{score:.0f}", fontsize=34, color=COLORS['love_dark'],
+        # Score number
+        ax.text(0.5, 0.60, f"{score:.0f}", fontsize=38, color=COLORS['love_dark'],
                 ha='center', va='center', fontweight='bold', transform=ax.transAxes)
-        ax.text(0.5, 0.45, "💕", fontsize=14, ha='center', va='center', transform=ax.transAxes)
 
-        # Label
-        ax.text(0.5, 0.25, label, fontsize=16, color=COLORS['love_dark'],
+        # Heart below score
+        ax.text(0.5, 0.42, "❤️", fontsize=16, ha='center', va='center', transform=ax.transAxes)
+
+        # Label with stars
+        ax.text(0.5, 0.22, f"✨ {label} ✨", fontsize=14, color=COLORS['love_dark'],
                 ha='center', va='center', fontweight='bold', transform=ax.transAxes)
 
         # Description
-        ax.text(0.5, 0.08, desc, fontsize=8, color=COLORS['text_secondary'],
-                ha='center', va='center', wrap=True, transform=ax.transAxes)
+        ax.text(0.5, 0.07, desc, fontsize=8, color=COLORS['text_secondary'],
+                ha='center', va='center', wrap=True, transform=ax.transAxes,
+                fontstyle='italic')
 
     def _render_key_insights(self, ax):
-        """Render insights list with romantic styling."""
-        self._setup_card(ax, "KEY INSIGHTS")
+        """Render insights list with beautiful romantic styling."""
+        self._setup_card(ax, "KEY INSIGHTS", icon="✨")
         ax.axis('off')
 
         insights = self.sentiment.generate_key_insights()
 
+        # Alternating heart icons for variety
+        hearts = ["💕", "💗", "💖", "💘", "💝"]
+
         y_pos = 0.85
         for i, insight in enumerate(insights[:5]):
-            # Heart bullet point
-            ax.text(0.05, y_pos, "💗", fontsize=10, color=COLORS['love_pink'],
-                   transform=ax.transAxes)
-            # Insight text (wrap long text)
-            wrapped = insight[:60] + ('...' if len(insight) > 60 else '')
-            ax.text(0.12, y_pos, wrapped, fontsize=9, color=COLORS['text_primary'],
+            # Decorative heart bullet
+            ax.text(0.04, y_pos, hearts[i % len(hearts)], fontsize=11,
                    transform=ax.transAxes, va='center')
-            y_pos -= 0.17
+
+            # Insight text with nice wrapping
+            wrapped = insight[:55] + ('...' if len(insight) > 55 else '')
+            ax.text(0.12, y_pos, wrapped, fontsize=9.5, color=COLORS['text_primary'],
+                   transform=ax.transAxes, va='center')
+            y_pos -= 0.165
 
     def _render_conversation_analysis(self, ax):
-        """Render message counts table."""
-        self._setup_card(ax, "CONVERSATION ANALYSIS")
+        """Render beautiful message counts."""
+        self._setup_card(ax, "MESSAGE COUNT", icon="💬")
         ax.axis('off')
 
         msg_counts = self.metrics.get_message_counts()
         double_msgs = self.metrics.get_double_messages()
+        total_msgs = sum(msg_counts.values())
 
-        y_pos = 0.8
+        # Total at top
+        ax.text(0.5, 0.88, f"✨ {total_msgs:,} messages ✨", fontsize=14,
+               color=COLORS['love_dark'], ha='center', transform=ax.transAxes,
+               fontweight='bold')
+
+        y_pos = 0.72
         for i, (sender, count) in enumerate(sorted(msg_counts.items(), key=lambda x: -x[1])):
             name = self.get_display_name(sender)
             color = COLORS['person1'] if i == 0 else COLORS['person2']
+            emoji = "💙" if i == 0 else "💖"
+            pct = (count / total_msgs * 100) if total_msgs > 0 else 0
 
-            # Name and count
-            ax.text(0.1, y_pos, name, fontsize=11, color=color,
+            # Name with emoji
+            ax.text(0.08, y_pos, f"{emoji} {name}", fontsize=11, color=color,
                    fontweight='bold', transform=ax.transAxes)
-            ax.text(0.7, y_pos, f"{count:,}", fontsize=14, color=COLORS['text_primary'],
+            ax.text(0.92, y_pos, f"{count:,}", fontsize=13, color=color,
                    fontweight='bold', transform=ax.transAxes, ha='right')
-            ax.text(0.75, y_pos, "msgs", fontsize=9, color=COLORS['text_muted'],
-                   transform=ax.transAxes)
-            y_pos -= 0.18
+            ax.text(0.72, y_pos - 0.08, f"({pct:.0f}%)", fontsize=9, color=COLORS['text_muted'],
+                   transform=ax.transAxes, ha='right')
+            y_pos -= 0.22
 
-        # Quality level
+        # Quality level with star
         label, _, score = self.sentiment.calculate_relationship_rating()
-        ax.text(0.1, y_pos, "Quality Level", fontsize=10, color=COLORS['text_secondary'],
+        ax.text(0.08, y_pos, "⭐ Quality", fontsize=10, color=COLORS['text_secondary'],
                transform=ax.transAxes)
-        ax.text(0.9, y_pos, label, fontsize=10, color=COLORS['accent_green'],
+        ax.text(0.92, y_pos, label, fontsize=11, color=COLORS['accent_green'],
                fontweight='bold', transform=ax.transAxes, ha='right')
         y_pos -= 0.15
 
         # Double messages
         total_double = sum(double_msgs.values())
-        ax.text(0.1, y_pos, "Double Messages", fontsize=10, color=COLORS['text_secondary'],
+        ax.text(0.08, y_pos, "💕 Double texts", fontsize=10, color=COLORS['text_secondary'],
                transform=ax.transAxes)
-        ax.text(0.9, y_pos, f"{total_double:,}", fontsize=10, color=COLORS['text_primary'],
-               transform=ax.transAxes, ha='right')
+        ax.text(0.92, y_pos, f"{total_double:,}", fontsize=10, color=COLORS['love_pink'],
+               transform=ax.transAxes, ha='right', fontweight='bold')
 
     def _render_balance_of_power(self, ax):
-        """Render horizontal bar chart of message ratio."""
-        self._setup_card(ax, "BALANCE OF POWER")
+        """Render beautiful message balance visualization."""
+        self._setup_card(ax, "BALANCE OF LOVE", icon="⚖️")
 
         ratio = self.metrics.get_message_ratio()
         sorted_ratio = sorted(ratio.items(), key=lambda x: -x[1])
@@ -262,63 +300,72 @@ class DashboardGenerator:
             values = [s[1] for s in sorted_ratio]
             colors = [COLORS['person1'], COLORS['person2']]
 
-            # Horizontal stacked bar
-            ax.barh([0], [values[0]], color=colors[0], height=0.4, label=names[0])
-            ax.barh([0], [values[1]], left=[values[0]], color=colors[1], height=0.4, label=names[1])
+            # Rounded horizontal bars with gradient-like effect
+            ax.barh([0], [values[0]], color=colors[0], height=0.5, alpha=0.85,
+                   edgecolor=colors[0], linewidth=2)
+            ax.barh([0], [values[1]], left=[values[0]], color=colors[1], height=0.5,
+                   alpha=0.85, edgecolor=colors[1], linewidth=2)
 
-            # Percentage labels
-            ax.text(values[0]/2, 0, f"{values[0]:.1f}%", ha='center', va='center',
-                   color='white', fontsize=12, fontweight='bold')
-            ax.text(values[0] + values[1]/2, 0, f"{values[1]:.1f}%", ha='center', va='center',
-                   color='white', fontsize=12, fontweight='bold')
+            # Percentage labels with emoji
+            ax.text(values[0]/2, 0.02, f"{values[0]:.0f}%", ha='center', va='center',
+                   color='white', fontsize=13, fontweight='bold')
+            ax.text(values[0] + values[1]/2, 0.02, f"{values[1]:.0f}%", ha='center', va='center',
+                   color='white', fontsize=13, fontweight='bold')
 
-            # Name labels
-            ax.text(values[0]/2, -0.35, names[0], ha='center', va='center',
-                   color=colors[0], fontsize=10)
-            ax.text(values[0] + values[1]/2, -0.35, names[1], ha='center', va='center',
-                   color=colors[1], fontsize=10)
+            # Name labels with hearts
+            ax.text(values[0]/2, -0.42, f"💙 {names[0]}", ha='center', va='center',
+                   color=colors[0], fontsize=11, fontweight='bold')
+            ax.text(values[0] + values[1]/2, -0.42, f"💖 {names[1]}", ha='center', va='center',
+                   color=colors[1], fontsize=11, fontweight='bold')
 
         ax.set_xlim(0, 100)
-        ax.set_ylim(-0.6, 0.6)
+        ax.set_ylim(-0.7, 0.7)
         ax.axis('off')
 
     def _render_direction_stats(self, ax):
-        """Render conversation initiation stats."""
-        self._setup_card(ax, "DIRECTION OF CONVERSATION")
+        """Render who initiates conversations with nice visual."""
+        self._setup_card(ax, "WHO STARTS THE CHAT", icon="💌")
         ax.axis('off')
 
         initiations = self.metrics.get_conversation_initiations()
         total = sum(initiations.values())
 
-        y_pos = 0.75
-        ax.text(0.5, 0.9, "Who starts conversations", fontsize=10,
-               color=COLORS['text_secondary'], ha='center', transform=ax.transAxes)
+        y_pos = 0.78
+        ax.text(0.5, 0.92, "Who reaches out first? 💬", fontsize=10,
+               color=COLORS['text_secondary'], ha='center', transform=ax.transAxes,
+               fontstyle='italic')
 
         for i, (sender, count) in enumerate(sorted(initiations.items(), key=lambda x: -x[1])):
             name = self.get_display_name(sender)
             pct = (count / total * 100) if total > 0 else 0
             color = COLORS['person1'] if i == 0 else COLORS['person2']
+            emoji = "💙" if i == 0 else "💖"
 
-            # Progress bar
-            bar_width = pct / 100 * 0.7
-            ax.add_patch(mpatches.Rectangle((0.15, y_pos - 0.05), 0.7, 0.08,
-                        facecolor=COLORS['card_border'], transform=ax.transAxes))
-            ax.add_patch(mpatches.Rectangle((0.15, y_pos - 0.05), bar_width, 0.08,
-                        facecolor=color, transform=ax.transAxes))
+            # Progress bar background (rounded look)
+            ax.add_patch(mpatches.FancyBboxPatch((0.18, y_pos - 0.04), 0.64, 0.07,
+                        boxstyle="round,pad=0.02", facecolor=COLORS['card_shadow'],
+                        transform=ax.transAxes))
 
-            ax.text(0.1, y_pos, name, fontsize=10, color=color,
-                   transform=ax.transAxes, ha='right', va='center')
-            ax.text(0.9, y_pos, f"{pct:.0f}%", fontsize=10, color=COLORS['text_primary'],
-                   transform=ax.transAxes, ha='left', va='center')
+            # Progress bar fill
+            bar_width = pct / 100 * 0.64
+            ax.add_patch(mpatches.FancyBboxPatch((0.18, y_pos - 0.04), bar_width, 0.07,
+                        boxstyle="round,pad=0.02", facecolor=color, alpha=0.8,
+                        transform=ax.transAxes))
 
-            y_pos -= 0.25
+            ax.text(0.05, y_pos, f"{emoji}", fontsize=12, transform=ax.transAxes, va='center')
+            ax.text(0.88, y_pos, f"{pct:.0f}%", fontsize=11, color=color,
+                   transform=ax.transAxes, ha='left', va='center', fontweight='bold')
+            ax.text(0.5, y_pos, name, fontsize=10, color='white',
+                   transform=ax.transAxes, ha='center', va='center', fontweight='bold')
 
-        ax.text(0.5, 0.1, f"Total: {total} conversations started", fontsize=9,
-               color=COLORS['text_muted'], ha='center', transform=ax.transAxes)
+            y_pos -= 0.28
+
+        ax.text(0.5, 0.08, f"✨ {total:,} conversations started ✨", fontsize=9,
+               color=COLORS['love_pink'], ha='center', transform=ax.transAxes)
 
     def _render_responding_metrics(self, ax):
-        """Render response time statistics."""
-        self._setup_card(ax, "RESPONDING")
+        """Render beautiful response time statistics."""
+        self._setup_card(ax, "RESPONSE LOVE", icon="⚡")
         ax.axis('off')
 
         immediate = self.metrics.get_immediate_replies_percentage()
@@ -326,35 +373,36 @@ class DashboardGenerator:
         median_response = self.metrics.get_median_response_time()
 
         metrics_data = [
-            ("Immediate Replies", f"{np.mean(list(immediate.values())):.1f}%", COLORS['accent_green']),
-            ("Avg Response Time", f"{np.mean(list(avg_response.values())):.1f} min", COLORS['accent_orange']),
-            ("Median Response", f"{np.mean(list(median_response.values())):.1f} min", COLORS['accent_cyan']),
+            ("⚡ Quick Replies", f"{np.mean(list(immediate.values())):.0f}%", COLORS['accent_green']),
+            ("⏱️ Avg Response", f"{np.mean(list(avg_response.values())):.0f} min", COLORS['accent_purple']),
+            ("📊 Median Time", f"{np.mean(list(median_response.values())):.0f} min", COLORS['accent_cyan']),
         ]
 
-        y_pos = 0.8
+        y_pos = 0.82
         for label, value, color in metrics_data:
-            ax.text(0.1, y_pos, label, fontsize=10, color=COLORS['text_secondary'],
+            ax.text(0.08, y_pos, label, fontsize=10, color=COLORS['text_secondary'],
                    transform=ax.transAxes)
-            ax.text(0.9, y_pos, value, fontsize=12, color=color,
+            ax.text(0.92, y_pos, value, fontsize=13, color=color,
                    fontweight='bold', transform=ax.transAxes, ha='right')
-            y_pos -= 0.22
+            y_pos -= 0.21
+
+        # Divider
+        ax.axhline(y=0.22, xmin=0.1, xmax=0.9, color=COLORS['card_border'],
+                  linewidth=1, linestyle='--')
 
         # Per-person breakdown
-        y_pos -= 0.05
-        ax.text(0.5, y_pos, "By Person:", fontsize=9, color=COLORS['text_muted'],
-               ha='center', transform=ax.transAxes)
-        y_pos -= 0.12
-
+        y_pos = 0.15
         for i, (sender, time) in enumerate(sorted(avg_response.items(), key=lambda x: x[1])):
             name = self.get_display_name(sender)
             color = COLORS['person1'] if i == 0 else COLORS['person2']
-            ax.text(0.15, y_pos, f"{name}: {time:.1f} min avg", fontsize=9,
-                   color=color, transform=ax.transAxes)
+            emoji = "💙" if i == 0 else "💖"
+            ax.text(0.08, y_pos, f"{emoji} {name}: {time:.0f} min", fontsize=9,
+                   color=color, transform=ax.transAxes, fontweight='bold')
             y_pos -= 0.1
 
     def _render_chat_focus_pie(self, ax):
-        """Render topic distribution pie chart."""
-        self._setup_card(ax, "CHAT FOCUS")
+        """Render beautiful topic distribution donut chart."""
+        self._setup_card(ax, "WHAT YOU TALK ABOUT", icon="💭")
 
         percentages = self.topics.get_topic_percentages()
 
@@ -369,72 +417,78 @@ class DashboardGenerator:
             labels.append('Other')
             sizes.append(other_pct)
 
-        colors = COLORS['chart_colors'][:len(labels)]
+        # Beautiful soft colors
+        soft_colors = ['#f472b6', '#818cf8', '#4ade80', '#fbbf24', '#c084fc', '#22d3ee', '#fda4af']
+        colors = soft_colors[:len(labels)]
 
+        # Create donut chart (more modern look)
         wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.0f%%',
                                           colors=colors, startangle=90,
-                                          pctdistance=0.75)
+                                          pctdistance=0.78, wedgeprops={'width': 0.55,
+                                          'edgecolor': 'white', 'linewidth': 2})
 
         for autotext in autotexts:
             autotext.set_color('white')
-            autotext.set_fontsize(8)
+            autotext.set_fontsize(9)
+            autotext.set_fontweight('bold')
 
-        # Legend
-        ax.legend(wedges, labels, loc='center left', bbox_to_anchor=(0.9, 0.5),
-                 fontsize=8, frameon=False,
-                 labelcolor=COLORS['text_secondary'])
+        # Center decoration
+        ax.text(0, 0, "💬", fontsize=20, ha='center', va='center')
+
+        # Legend with nicer styling
+        ax.legend(wedges, labels, loc='center left', bbox_to_anchor=(0.88, 0.5),
+                 fontsize=9, frameon=False, labelcolor=COLORS['text_secondary'])
 
     def _render_message_analysis(self, ax):
-        """Render word/character statistics."""
-        self._setup_card(ax, "MESSAGE ANALYSIS")
+        """Render beautiful word statistics."""
+        self._setup_card(ax, "WORDS OF LOVE", icon="📝")
         ax.axis('off')
 
         word_counts = self.metrics.get_word_counts()
         unique_words = self.metrics.get_unique_words()
         avg_length = self.metrics.get_average_message_length()
-        char_counts = self.metrics.get_character_counts()
 
-        y_pos = 0.85
-
-        # Total words
+        # Total words highlight
         total_words = sum(word_counts.values())
-        ax.text(0.1, y_pos, "Total Words", fontsize=10, color=COLORS['text_secondary'],
-               transform=ax.transAxes)
-        ax.text(0.9, y_pos, f"{total_words:,}", fontsize=12, color=COLORS['text_primary'],
-               fontweight='bold', transform=ax.transAxes, ha='right')
-        y_pos -= 0.18
+        ax.text(0.5, 0.88, f"📚 {total_words:,} words shared", fontsize=12,
+               color=COLORS['love_dark'], ha='center', transform=ax.transAxes,
+               fontweight='bold')
 
-        # Per person words
+        y_pos = 0.70
+
+        # Per person words with nice bars
         for i, (sender, count) in enumerate(sorted(word_counts.items(), key=lambda x: -x[1])):
             name = self.get_display_name(sender)
             color = COLORS['person1'] if i == 0 else COLORS['person2']
-            ax.text(0.15, y_pos, f"  {name}", fontsize=9, color=color, transform=ax.transAxes)
-            ax.text(0.9, y_pos, f"{count:,}", fontsize=10, color=COLORS['text_secondary'],
-                   transform=ax.transAxes, ha='right')
-            y_pos -= 0.12
+            emoji = "💙" if i == 0 else "💖"
+            pct = count / total_words * 100
+
+            ax.text(0.08, y_pos, f"{emoji} {name}", fontsize=10, color=color,
+                   fontweight='bold', transform=ax.transAxes)
+            ax.text(0.92, y_pos, f"{count:,}", fontsize=11, color=color,
+                   transform=ax.transAxes, ha='right', fontweight='bold')
+            y_pos -= 0.14
 
         y_pos -= 0.05
 
         # Unique words
-        ax.text(0.1, y_pos, "Unique Words", fontsize=10, color=COLORS['text_secondary'],
+        ax.text(0.08, y_pos, "🎨 Unique Words", fontsize=10, color=COLORS['text_secondary'],
                transform=ax.transAxes)
-        for i, (sender, count) in enumerate(sorted(unique_words.items(), key=lambda x: -x[1])):
-            name = self.get_display_name(sender)[:3]
-            ax.text(0.7 + i*0.15, y_pos, f"{count:,}", fontsize=10,
-                   color=COLORS['person1'] if i == 0 else COLORS['person2'],
-                   transform=ax.transAxes, ha='right')
-        y_pos -= 0.15
+        total_unique = sum(unique_words.values())
+        ax.text(0.92, y_pos, f"{total_unique:,}", fontsize=11, color=COLORS['accent_purple'],
+               transform=ax.transAxes, ha='right', fontweight='bold')
+        y_pos -= 0.14
 
         # Avg message length
-        ax.text(0.1, y_pos, "Avg Words/Msg", fontsize=10, color=COLORS['text_secondary'],
+        ax.text(0.08, y_pos, "📏 Avg Words/Msg", fontsize=10, color=COLORS['text_secondary'],
                transform=ax.transAxes)
         avg_all = np.mean(list(avg_length.values()))
-        ax.text(0.9, y_pos, f"{avg_all:.1f}", fontsize=10, color=COLORS['text_primary'],
-               transform=ax.transAxes, ha='right')
+        ax.text(0.92, y_pos, f"{avg_all:.1f}", fontsize=11, color=COLORS['accent_cyan'],
+               transform=ax.transAxes, ha='right', fontweight='bold')
 
     def _render_content_analysis(self, ax):
-        """Render media counts comparison table."""
-        self._setup_card(ax, "CONTENT ANALYSIS")
+        """Render beautiful media sharing comparison."""
+        self._setup_card(ax, "SHARED WITH LOVE", icon="📸")
         ax.axis('off')
 
         emoji_counts = self.metrics.get_emoji_counts()
@@ -447,23 +501,23 @@ class DashboardGenerator:
                                     key=lambda x: self.metrics.get_message_counts().get(x, 0),
                                     reverse=True)
 
-        # Header
+        # Header with emojis
         y_pos = 0.88
-        ax.text(0.4, y_pos, self.get_display_name(sorted_participants[0])[:6], fontsize=9,
+        ax.text(0.42, y_pos, f"💙 {self.get_display_name(sorted_participants[0])[:6]}", fontsize=10,
                color=COLORS['person1'], fontweight='bold', transform=ax.transAxes, ha='center')
         if len(sorted_participants) > 1:
-            ax.text(0.7, y_pos, self.get_display_name(sorted_participants[1])[:6], fontsize=9,
+            ax.text(0.75, y_pos, f"💖 {self.get_display_name(sorted_participants[1])[:6]}", fontsize=10,
                    color=COLORS['person2'], fontweight='bold', transform=ax.transAxes, ha='center')
-        y_pos -= 0.12
+        y_pos -= 0.13
 
-        # Data rows
+        # Data rows with icons
         rows = [
-            ("Emojis", emoji_counts),
-            ("Images", {s: media_counts.get(s, {}).get('images', 0) for s in sorted_participants}),
-            ("Videos", {s: media_counts.get(s, {}).get('videos', 0) for s in sorted_participants}),
-            ("Audio", {s: media_counts.get(s, {}).get('audio', 0) for s in sorted_participants}),
-            ("Links", link_counts),
-            ("Video Calls", {s: call_counts.get(s, {}).get('video_calls', 0) for s in sorted_participants}),
+            ("😊 Emojis", emoji_counts),
+            ("📷 Photos", {s: media_counts.get(s, {}).get('images', 0) for s in sorted_participants}),
+            ("🎬 Videos", {s: media_counts.get(s, {}).get('videos', 0) for s in sorted_participants}),
+            ("🎵 Audio", {s: media_counts.get(s, {}).get('audio', 0) for s in sorted_participants}),
+            ("🔗 Links", link_counts),
+            ("📹 Calls", {s: call_counts.get(s, {}).get('video_calls', 0) for s in sorted_participants}),
         ]
 
         for label, data in rows:
@@ -471,135 +525,159 @@ class DashboardGenerator:
                    transform=ax.transAxes)
 
             val1 = data.get(sorted_participants[0], 0)
-            ax.text(0.4, y_pos, f"{val1:,}", fontsize=9, color=COLORS['person1'],
-                   transform=ax.transAxes, ha='center')
+            ax.text(0.42, y_pos, f"{val1:,}", fontsize=10, color=COLORS['person1'],
+                   transform=ax.transAxes, ha='center', fontweight='bold')
 
             if len(sorted_participants) > 1:
                 val2 = data.get(sorted_participants[1], 0)
-                ax.text(0.7, y_pos, f"{val2:,}", fontsize=9, color=COLORS['person2'],
-                       transform=ax.transAxes, ha='center')
+                ax.text(0.75, y_pos, f"{val2:,}", fontsize=10, color=COLORS['person2'],
+                       transform=ax.transAxes, ha='center', fontweight='bold')
 
-            y_pos -= 0.11
+            y_pos -= 0.115
 
     def _render_messaging_heatmap(self, ax):
-        """Render 7x24 activity heatmap with romantic colors."""
-        self._setup_card(ax, "WHEN YOU TALK THE MOST")
+        """Render beautiful activity heatmap with romantic gradient."""
+        self._setup_card(ax, "WHEN YOUR HEARTS CONNECT", icon="💬")
 
         heatmap_data = self.metrics.get_hourly_heatmap()
 
-        # Day labels
-        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        # Day labels with emojis
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat ✨', 'Sun ✨']
 
-        # Create romantic pink colormap
+        # Create beautiful romantic pink-to-magenta colormap
         from matplotlib.colors import LinearSegmentedColormap
-        romantic_colors = ['#fff5f7', '#ffe4ec', '#ffb6c1', '#ff6b9d', '#c44569']
+        romantic_colors = ['#fef7f9', '#fce7f3', '#fbcfe8', '#f9a8d4', '#f472b6', '#ec4899', '#db2777']
         romantic_cmap = LinearSegmentedColormap.from_list('romantic', romantic_colors)
 
-        # Create heatmap
+        # Create heatmap with nicer styling
         sns.heatmap(heatmap_data, ax=ax, cmap=romantic_cmap, cbar=True,
                    xticklabels=[f'{h}' for h in range(24)],
-                   yticklabels=days, linewidths=0.5, linecolor='#ffe4ec')
+                   yticklabels=days, linewidths=0.8, linecolor='#fff0f3',
+                   cbar_kws={'label': 'Messages', 'shrink': 0.8})
 
-        ax.set_xlabel('Hour of Day', color=COLORS['text_secondary'], fontsize=10)
+        ax.set_xlabel('Hour of Day 🕐', color=COLORS['text_secondary'], fontsize=11)
         ax.set_ylabel('', color=COLORS['text_secondary'])
 
         # Style ticks
-        ax.tick_params(colors=COLORS['text_secondary'], labelsize=8)
+        ax.tick_params(colors=COLORS['text_secondary'], labelsize=9)
         plt.setp(ax.get_xticklabels(), rotation=0)
         plt.setp(ax.get_yticklabels(), rotation=0)
 
     def _render_growth_timeline(self, ax):
-        """Render relationship growth over time."""
-        self._setup_card(ax, "RELATIONSHIP GROWTH OVER TIME")
+        """Render beautiful relationship growth timeline."""
+        self._setup_card(ax, "YOUR LOVE GROWING OVER TIME", icon="📈")
 
         growth_data = self.sentiment.get_relationship_growth_data()
         months = growth_data['months']
         volumes = growth_data['message_volumes']
 
         if len(months) < 2:
-            ax.text(0.5, 0.5, "Not enough data for timeline", ha='center', va='center',
-                   color=COLORS['text_muted'], transform=ax.transAxes)
+            ax.text(0.5, 0.5, "✨ Your story is just beginning! ✨", ha='center', va='center',
+                   color=COLORS['love_pink'], transform=ax.transAxes, fontsize=14)
             return
 
         # Create x positions
         x = np.arange(len(months))
 
-        # Plot message volume
-        ax.fill_between(x, volumes, alpha=0.3, color=COLORS['accent_purple'])
-        ax.plot(x, volumes, color=COLORS['accent_purple'], linewidth=2, label='Messages')
+        # Beautiful gradient fill under the line
+        ax.fill_between(x, volumes, alpha=0.25, color=COLORS['love_pink'])
+        ax.fill_between(x, volumes, alpha=0.15, color=COLORS['accent_purple'])
+
+        # Main line with romantic color
+        ax.plot(x, volumes, color=COLORS['love_dark'], linewidth=3, label='Messages 💌')
+
+        # Add dots at key points
+        ax.scatter(x[::max(1, len(x)//12)], [volumes[i] for i in range(0, len(volumes), max(1, len(x)//12))],
+                  color=COLORS['love_dark'], s=50, zorder=5, alpha=0.8)
 
         # Plot call frequency if available
         calls = growth_data.get('call_counts', [])
         if calls and any(c > 0 for c in calls):
             ax2 = ax.twinx()
-            ax2.plot(x, calls, color=COLORS['accent_orange'], linewidth=2,
-                    linestyle='--', label='Calls')
-            ax2.set_ylabel('Calls', color=COLORS['accent_orange'], fontsize=10)
-            ax2.tick_params(colors=COLORS['accent_orange'], labelsize=8)
-            ax2.spines['right'].set_color(COLORS['accent_orange'])
+            ax2.plot(x, calls, color=COLORS['accent_purple'], linewidth=2.5,
+                    linestyle='--', label='Calls 📞', alpha=0.8)
+            ax2.set_ylabel('Calls 📞', color=COLORS['accent_purple'], fontsize=11)
+            ax2.tick_params(colors=COLORS['accent_purple'], labelsize=9)
+            ax2.spines['right'].set_color(COLORS['accent_purple'])
 
         # Style main axis
         ax.set_xlim(0, len(months) - 1)
-        ax.set_ylim(0, max(volumes) * 1.1)
+        ax.set_ylim(0, max(volumes) * 1.15)
 
-        # Show every 3rd month label
+        # Show month labels nicely
         tick_positions = list(range(0, len(months), max(1, len(months) // 10)))
         ax.set_xticks(tick_positions)
-        ax.set_xticklabels([months[i] for i in tick_positions], rotation=45, ha='right')
+        ax.set_xticklabels([months[i] for i in tick_positions], rotation=45, ha='right', fontsize=9)
 
-        ax.set_ylabel('Messages', color=COLORS['accent_purple'], fontsize=10)
-        ax.tick_params(colors=COLORS['text_secondary'], labelsize=8)
+        ax.set_ylabel('Messages 💌', color=COLORS['love_dark'], fontsize=11)
+        ax.tick_params(colors=COLORS['text_secondary'], labelsize=9)
 
-        # Growth trend annotation
+        # Growth trend annotation with emoji
         trend = growth_data.get('growth_trend', 'stable')
+        trend_emojis = {'growing': '📈 Growing!', 'stable': '💕 Steady', 'declining': '📉 Slowing'}
         trend_colors = {'growing': COLORS['accent_green'], 'stable': COLORS['accent_cyan'],
                        'declining': COLORS['accent_orange']}
-        ax.text(0.98, 0.95, f"Trend: {trend.title()}", fontsize=10,
+        ax.text(0.98, 0.95, trend_emojis.get(trend, 'Trend'), fontsize=12,
                color=trend_colors.get(trend, COLORS['text_secondary']),
                transform=ax.transAxes, ha='right', va='top', fontweight='bold')
 
-        # Add milestone markers
+        # Add milestone markers with hearts
         milestones = growth_data.get('milestones', [])
-        for date, label in milestones[:5]:  # Show first 5 milestones
+        for date, label in milestones[:5]:
             if isinstance(date, datetime):
                 month_key = date.strftime('%Y-%m')
                 if month_key in months:
                     idx = months.index(month_key)
-                    ax.axvline(x=idx, color=COLORS['accent_green'], linestyle=':',
-                              alpha=0.5, linewidth=1)
+                    ax.axvline(x=idx, color=COLORS['love_pink'], linestyle=':',
+                              alpha=0.6, linewidth=2)
 
     def _render_milestones(self, ax):
-        """Render key milestones with romantic styling."""
-        self._setup_card(ax, "YOUR LOVE MILESTONES")
+        """Render beautiful love milestones timeline."""
+        self._setup_card(ax, "YOUR LOVE MILESTONES", icon="🌟")
         ax.axis('off')
 
         milestones = self.sentiment.detect_milestones()
 
         if not milestones:
-            ax.text(0.5, 0.5, "Your journey is just beginning! 💕", ha='center', va='center',
-                   color=COLORS['text_muted'], transform=ax.transAxes)
+            ax.text(0.5, 0.5, "✨ Your beautiful journey is just beginning! ✨",
+                   ha='center', va='center', color=COLORS['love_pink'],
+                   transform=ax.transAxes, fontsize=14, fontstyle='italic')
             return
 
-        # Show milestones horizontally
+        # Draw connecting line
         num_milestones = min(6, len(milestones))
-        spacing = 1.0 / (num_milestones + 1)
+        start_x = 1.0 / (num_milestones + 1)
+        end_x = num_milestones / (num_milestones + 1)
+        ax.plot([start_x, end_x], [0.55, 0.55], color=COLORS['love_light'],
+               linewidth=3, linestyle='--', alpha=0.6, transform=ax.transAxes)
 
+        # Alternating milestone icons
+        icons = ["💖", "💕", "✨", "💝", "🌸", "💗"]
+
+        spacing = 1.0 / (num_milestones + 1)
         for i, (date, label) in enumerate(milestones[:num_milestones]):
             x_pos = spacing * (i + 1)
 
-            # Date
+            # Date string
             if isinstance(date, datetime):
                 date_str = date.strftime('%b %Y')
             else:
                 date_str = str(date)[:10]
 
-            # Heart marker instead of diamond
-            ax.text(x_pos, 0.7, "💕", fontsize=16, color=COLORS['love_pink'],
+            # Heart marker with glow effect (larger background)
+            ax.text(x_pos, 0.55, "⭕", fontsize=28, color=COLORS['gradient_start'],
+                   ha='center', va='center', transform=ax.transAxes, alpha=0.5)
+            ax.text(x_pos, 0.55, icons[i % len(icons)], fontsize=22,
                    ha='center', va='center', transform=ax.transAxes)
-            ax.text(x_pos, 0.45, date_str, fontsize=9, color=COLORS['love_dark'],
+
+            # Date below
+            ax.text(x_pos, 0.32, date_str, fontsize=10, color=COLORS['love_dark'],
                    ha='center', va='center', transform=ax.transAxes, fontweight='bold')
-            ax.text(x_pos, 0.2, label, fontsize=8, color=COLORS['text_primary'],
-                   ha='center', va='center', transform=ax.transAxes, wrap=True)
+
+            # Label
+            label_short = label[:18] + ('...' if len(label) > 18 else '')
+            ax.text(x_pos, 0.15, label_short, fontsize=9, color=COLORS['text_secondary'],
+                   ha='center', va='center', transform=ax.transAxes)
 
 
 if __name__ == '__main__':
