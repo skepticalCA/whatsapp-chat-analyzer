@@ -14,6 +14,7 @@ from chat_parser import Message
 from metrics_calculator import MetricsCalculator
 from topic_classifier import TopicClassifier
 from sentiment_analyzer import SentimentAnalyzer
+from font_setup import setup_fonts
 
 
 # Romantic Love Theme Color Palette - Soft & Dreamy
@@ -63,8 +64,7 @@ class DashboardGenerator:
 
         # Set up matplotlib style - Light romantic theme
         plt.style.use('seaborn-v0_8-whitegrid')
-        plt.rcParams['font.family'] = 'sans-serif'
-        plt.rcParams['font.sans-serif'] = ['Arial', 'Helvetica', 'DejaVu Sans']
+        setup_fonts()
         plt.rcParams['axes.facecolor'] = COLORS['card_bg']
         plt.rcParams['figure.facecolor'] = COLORS['background']
         plt.rcParams['text.color'] = COLORS['text_primary']

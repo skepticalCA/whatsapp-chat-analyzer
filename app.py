@@ -25,6 +25,7 @@ from traits_analyzer import TraitsAnalyzer
 from traits_dashboard import TraitsDashboardGenerator
 from video_call_analyzer import VideoCallAnalyzer, VideoCallDashboard
 from razorpay_handler import create_order, verify_payment_signature, get_razorpay_keys, verify_payment_by_id
+from flashcard_generator import FlashcardGenerator
 
 # Payment configuration
 PAYMENT_AMOUNT = 9900  # ₹99 in paise
@@ -342,6 +343,29 @@ st.markdown("""
     /* Progress bar */
     .stProgress > div > div {
         background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%) !important;
+    }
+
+    /* WhatsApp share button */
+    .whatsapp-btn {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        background: linear-gradient(135deg, #25D366, #128C7E);
+        color: white !important;
+        padding: 12px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3);
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    .whatsapp-btn:hover {
+        box-shadow: 0 5px 20px rgba(37, 211, 102, 0.5);
+        transform: translateY(-1px);
+        color: white !important;
+        text-decoration: none;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -721,6 +745,15 @@ if uploaded_file is not None:
                 plt.close('all')
                 gc.collect()
 
+            # Generate shareable flashcards
+            status.text("💕 Creating shareable flashcards...")
+            flashcards = []
+            try:
+                flashcard_gen = FlashcardGenerator(metrics, sentiment, calls, participant_mapping)
+                flashcards = flashcard_gen.generate_all_cards()
+            except Exception as e:
+                st.warning(f"⚠️ Flashcard generation had an issue: {str(e)[:100]}")
+
             progress.progress(100)
 
             # Show status summary
@@ -811,6 +844,42 @@ if uploaded_file is not None:
                 else:
                     st.error(f"💔 Call dashboard could not be generated. Error: {dashboard_errors.get('calls', 'Unknown error')}")
                     st.info("Please try again or contact support if the issue persists.")
+
+            # Shareable Flashcards Section
+            if flashcards:
+                st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
+                st.markdown("### 💕 Share Your Love Story")
+                st.markdown("Beautiful flashcards you can share on WhatsApp!")
+
+                for i in range(0, len(flashcards), 2):
+                    cols = st.columns(2)
+                    for j, col in enumerate(cols):
+                        idx = i + j
+                        if idx < len(flashcards):
+                            card = flashcards[idx]
+                            card_bytes = FlashcardGenerator.image_to_bytes(card['image'])
+                            with col:
+                                st.image(card_bytes, caption=card['title'],
+                                         use_container_width=True)
+
+                                share_url = FlashcardGenerator.get_whatsapp_share_url(
+                                    card['share_text']
+                                )
+                                st.markdown(
+                                    f'<a href="{share_url}" target="_blank" '
+                                    f'class="whatsapp-btn">'
+                                    f'Share on WhatsApp</a>',
+                                    unsafe_allow_html=True
+                                )
+
+                                st.download_button(
+                                    f"Download {card['title']}",
+                                    card_bytes,
+                                    file_name=f"love_flashcard_{idx + 1}.png",
+                                    mime="image/png",
+                                    use_container_width=True,
+                                    key=f"flashcard_dl_{idx}"
+                                )
 
             with st.expander("📋 Detailed Statistics"):
                 col1, col2 = st.columns(2)

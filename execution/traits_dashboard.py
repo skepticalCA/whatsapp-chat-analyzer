@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from chat_parser import parse_whatsapp_chat
 from metrics_calculator import MetricsCalculator
 from traits_analyzer import TraitsAnalyzer
+from font_setup import setup_fonts
 
 
 # Romantic Love Theme Color Palette - Soft & Dreamy
@@ -54,7 +55,7 @@ class TraitsDashboardGenerator:
         self.participants = list(participant_mapping.keys())
 
         plt.style.use('seaborn-v0_8-whitegrid')
-        plt.rcParams['font.family'] = 'sans-serif'
+        setup_fonts()
         plt.rcParams['axes.facecolor'] = COLORS['card_bg']
         plt.rcParams['figure.facecolor'] = COLORS['background']
         plt.rcParams['text.color'] = COLORS['text_primary']

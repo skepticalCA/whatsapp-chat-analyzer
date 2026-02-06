@@ -13,6 +13,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from font_setup import setup_fonts
 from matplotlib.gridspec import GridSpec
 import seaborn as sns
 
@@ -300,6 +301,7 @@ class VideoCallDashboard:
         self.participants = list(participant_mapping.keys())
 
         plt.style.use('seaborn-v0_8-whitegrid')
+        setup_fonts()
         plt.rcParams['axes.facecolor'] = COLORS['card_bg']
         plt.rcParams['figure.facecolor'] = COLORS['background']
         plt.rcParams['text.color'] = COLORS['text_primary']
