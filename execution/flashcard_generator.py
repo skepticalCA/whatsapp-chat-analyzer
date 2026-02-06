@@ -335,108 +335,123 @@ class FlashcardGenerator:
     def generate_all_cards(self) -> List[Dict]:
         """Generate all flashcard images. Returns list of dicts with image, title, share_text."""
         cards = []
+        name1 = self.names[0] if len(self.names) >= 1 else "Me"
+        name2 = self.names[1] if len(self.names) >= 2 else "Babe"
 
-        # Card 1: Total Messages + Days of Love
+        # Card 1: Total Messages - "proof of love" hook
         msg_counts = self.metrics.get_message_counts()
         total_msgs = sum(msg_counts.values())
         total_days = self.metrics.get_total_days()
+        msgs_per_day = total_msgs / max(total_days, 1)
 
         cards.append({
             'image': self._create_card(
-                emoji_icon="\u2764",  # heart
+                emoji_icon="\u2764",
                 stat_value=f"{total_msgs:,}",
-                stat_label="Messages of Love",
-                subtitle=f"Over {total_days} beautiful days together",
+                stat_label="reasons I know you love me",
+                subtitle=f"That's {msgs_per_day:.0f} messages every single day",
                 theme_idx=0,
             ),
-            'title': 'Messages of Love',
+            'title': 'Proof of Love',
             'share_text': (
-                f"\u2764\ufe0f We've exchanged {total_msgs:,} messages "
-                f"over {total_days} days of love!\n\n"
-                f"Analyze your love story too! \U0001f495\n{WEBSITE_URL}"
+                f"\u2764\ufe0f {total_msgs:,} messages. "
+                f"That's {msgs_per_day:.0f} messages every single day "
+                f"for {total_days} days straight.\n\n"
+                f"If that's not love, what is? \U0001f495\n\n"
+                f"Find out your number \U0001f449 {WEBSITE_URL}"
             ),
         })
 
-        # Card 2: Love Score
+        # Card 2: Love Score - competitive/flex hook
         rating_label, rating_desc, rating_score = (
             self.sentiment.calculate_relationship_rating()
         )
 
         cards.append({
             'image': self._create_card(
-                emoji_icon="\U0001f496",  # sparkling heart
+                emoji_icon="\U0001f496",
                 stat_value=f"{rating_score:.0f}/100",
-                stat_label="Love Score",
-                subtitle=f"Rating: {rating_label}",
+                stat_label="Love Compatibility Score",
+                subtitle=f"Verdict: {rating_label}",
                 theme_idx=1,
             ),
             'title': 'Love Score',
             'share_text': (
-                f"\U0001f496 Our Love Score is {rating_score:.0f}/100 "
-                f"- {rating_label}!\n\n"
-                f"Analyze your love story too! \U0001f495\n{WEBSITE_URL}"
+                f"\U0001f496 We just got our love score analyzed...\n\n"
+                f"*{rating_score:.0f} out of 100* - {rating_label}!\n\n"
+                f"Think you can beat us? \U0001f60f\n"
+                f"Test your chat \U0001f449 {WEBSITE_URL}"
             ),
         })
 
-        # Card 3: Total Call Hours
+        # Card 3: Call Hours - emotional intimacy hook
         call_summary = self.calls.get_call_summary()
         total_hours = call_summary['total_call_time_hours']
         total_calls = call_summary['total_calls']
 
         if total_calls > 0:
+            total_days_calling = total_hours / 24
             cards.append({
                 'image': self._create_card(
-                    emoji_icon="\U0001f4de",  # telephone receiver
-                    stat_value=f"{total_hours:.1f}h",
-                    stat_label="Hours on Calls Together",
-                    subtitle=f"Across {total_calls:,} calls",
+                    emoji_icon="\U0001f4de",
+                    stat_value=f"{total_hours:.0f}h",
+                    stat_label="spent hearing your voice",
+                    subtitle=f"That's {total_days_calling:.1f} full days of just us",
                     theme_idx=2,
                 ),
-                'title': 'Call Hours',
+                'title': 'Hours Together',
                 'share_text': (
-                    f"\U0001f4de We've spent {total_hours:.1f} hours on "
-                    f"{total_calls:,} calls!\n\n"
-                    f"Analyze your love story too! \U0001f495\n{WEBSITE_URL}"
+                    f"\U0001f4de {total_hours:.0f} hours on calls.\n"
+                    f"That's {total_days_calling:.1f} full days of "
+                    f"just hearing each other's voice.\n\n"
+                    f"Some people don't talk that much in a year \U0001f602\n\n"
+                    f"Check your hours \U0001f449 {WEBSITE_URL}"
                 ),
             })
 
-        # Card 4: Double Text Royalty
+        # Card 4: Double Text - playful teasing hook
         double_msgs = self.metrics.get_double_messages()
         if double_msgs:
             top_double = max(double_msgs.items(), key=lambda x: x[1])
             top_name = self.participant_mapping.get(top_double[0], top_double[0])
             double_count = top_double[1]
+            other_name = name2 if top_name == name1 else name1
 
             cards.append({
                 'image': self._create_card(
-                    emoji_icon="\U0001f451",  # crown
+                    emoji_icon="\U0001f451",
                     stat_value=f"{double_count:,}",
-                    stat_label=f"Double Texts by {top_name}",
-                    subtitle="The Double-Text Royalty \U0001f451",
+                    stat_label=f"times {top_name} couldn't wait",
+                    subtitle=f"The official 'can't stop thinking about {other_name}' award",
                     theme_idx=3,
                 ),
-                'title': 'Double-Text Royalty',
+                'title': "Can't Stop Texting",
                 'share_text': (
-                    f"\U0001f451 {top_name} is the Double-Text Royalty with "
-                    f"{double_count:,} double texts!\n\n"
-                    f"Analyze your love story too! \U0001f495\n{WEBSITE_URL}"
+                    f"\U0001f451 {top_name} double-texted {double_count:,} times.\n\n"
+                    f"That's {double_count:,} times they just couldn't wait "
+                    f"for {other_name} to reply \U0001f602\U0001f495\n\n"
+                    f"Who's the clingy one in your relationship?\n"
+                    f"Find out \U0001f449 {WEBSITE_URL}"
                 ),
             })
 
-        # Card 5: Key Insight
+        # Card 5: Key Insight - deep connection hook
         insights = self.sentiment.generate_key_insights()
         if insights:
             best_insight = insights[0]
             cards.append({
                 'image': self._create_insight_card(best_insight, theme_idx=4),
-                'title': 'Love Insight',
+                'title': 'What Your Chat Reveals',
                 'share_text': (
-                    f"\u2728 {best_insight}\n\n"
-                    f"Analyze your love story too! \U0001f495\n{WEBSITE_URL}"
+                    f"\u2728 We analyzed our entire WhatsApp chat "
+                    f"and this is what it revealed:\n\n"
+                    f"\"{best_insight}\"\n\n"
+                    f"What does your chat say about you?\n"
+                    f"Try it \U0001f449 {WEBSITE_URL}"
                 ),
             })
 
-        # Card 6: Response Time Comparison
+        # Card 6: Response Time - who cares more hook
         avg_response = self.metrics.get_average_response_time()
         if avg_response and len(avg_response) >= 2:
             sorted_resp = sorted(avg_response.items(), key=lambda x: x[1])
@@ -451,17 +466,19 @@ class FlashcardGenerator:
 
             cards.append({
                 'image': self._create_card(
-                    emoji_icon="\u26a1",  # lightning
+                    emoji_icon="\u26a1",
                     stat_value=f"{fastest_time:.0f} min",
-                    stat_label=f"{fastest_name} replies fastest!",
-                    subtitle=f"{slowest_name}: {slowest_time:.0f} min avg",
+                    stat_label=f"{fastest_name} can't wait to reply",
+                    subtitle=f"Meanwhile {slowest_name} takes {slowest_time:.0f} min...",
                     theme_idx=5,
                 ),
-                'title': 'Response Speed',
+                'title': 'Who Replies Faster',
                 'share_text': (
-                    f"\u26a1 {fastest_name} replies in {fastest_time:.0f} min "
-                    f"vs {slowest_name} in {slowest_time:.0f} min!\n\n"
-                    f"Analyze your love story too! \U0001f495\n{WEBSITE_URL}"
+                    f"\u26a1 The data doesn't lie...\n\n"
+                    f"{fastest_name} replies in {fastest_time:.0f} min\n"
+                    f"{slowest_name} takes {slowest_time:.0f} min \U0001f440\n\n"
+                    f"We know who's more whipped \U0001f602\U0001f495\n\n"
+                    f"Expose your partner \U0001f449 {WEBSITE_URL}"
                 ),
             })
 

@@ -199,22 +199,30 @@ st.markdown("""
         -webkit-text-fill-color: #333 !important;
     }
 
-    /* Metric cards */
+    /* Metric cards - forced visibility on all devices */
     div[data-testid="metric-container"] {
         background: #fff !important;
         border-radius: 15px !important;
         padding: 1rem !important;
         border: 1px solid #ffb6c1 !important;
+        box-shadow: 0 2px 8px rgba(196, 69, 105, 0.1) !important;
     }
 
-    div[data-testid="metric-container"] label {
+    div[data-testid="metric-container"] label,
+    div[data-testid="metric-container"] label p,
+    div[data-testid="metric-container"] label span {
         color: #c44569 !important;
         -webkit-text-fill-color: #c44569 !important;
+        opacity: 1 !important;
     }
 
-    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"],
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] div,
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] span,
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] p {
         color: #333 !important;
         -webkit-text-fill-color: #333 !important;
+        opacity: 1 !important;
     }
 
     /* File uploader - complete styling */
@@ -690,6 +698,7 @@ if uploaded_file is not None:
                 'calls': False
             }
             dashboard_errors = {}
+            dashboard_bytes = {}
 
             status.text("🎨 Creating your love dashboard...")
             progress.progress(80)
@@ -699,13 +708,14 @@ if uploaded_file is not None:
                 main_dashboard.create_dashboard(main_path)
                 if os.path.exists(main_path):
                     dashboard_status['main'] = True
+                    with open(main_path, 'rb') as f:
+                        dashboard_bytes['main'] = f.read()
                 else:
                     dashboard_errors['main'] = "File was not created"
             except Exception as e:
                 dashboard_errors['main'] = str(e)
                 st.warning(f"⚠️ Main dashboard generation had an issue: {str(e)[:100]}")
             finally:
-                # Clean up memory after each dashboard
                 plt.close('all')
                 gc.collect()
 
@@ -717,13 +727,14 @@ if uploaded_file is not None:
                 traits_dashboard.create_dashboard(traits_path)
                 if os.path.exists(traits_path):
                     dashboard_status['traits'] = True
+                    with open(traits_path, 'rb') as f:
+                        dashboard_bytes['traits'] = f.read()
                 else:
                     dashboard_errors['traits'] = "File was not created"
             except Exception as e:
                 dashboard_errors['traits'] = str(e)
                 st.warning(f"⚠️ Traits dashboard generation had an issue: {str(e)[:100]}")
             finally:
-                # Clean up memory after each dashboard
                 plt.close('all')
                 gc.collect()
 
@@ -735,28 +746,62 @@ if uploaded_file is not None:
                 call_dashboard.create_dashboard(call_path)
                 if os.path.exists(call_path):
                     dashboard_status['calls'] = True
+                    with open(call_path, 'rb') as f:
+                        dashboard_bytes['calls'] = f.read()
                 else:
                     dashboard_errors['calls'] = "File was not created"
             except Exception as e:
                 dashboard_errors['calls'] = str(e)
                 st.warning(f"⚠️ Call dashboard generation had an issue: {str(e)[:100]}")
             finally:
-                # Clean up memory after each dashboard
                 plt.close('all')
                 gc.collect()
 
             # Generate shareable flashcards
             status.text("💕 Creating shareable flashcards...")
-            flashcards = []
+            flashcard_data = []
             try:
                 flashcard_gen = FlashcardGenerator(metrics, sentiment, calls, participant_mapping)
-                flashcards = flashcard_gen.generate_all_cards()
+                raw_cards = flashcard_gen.generate_all_cards()
+                for card in raw_cards:
+                    flashcard_data.append({
+                        'image_bytes': FlashcardGenerator.image_to_bytes(card['image']),
+                        'title': card['title'],
+                        'share_text': card['share_text'],
+                    })
             except Exception as e:
                 st.warning(f"⚠️ Flashcard generation had an issue: {str(e)[:100]}")
 
+            # Gather all stats for persistent display
+            msg_counts = metrics.get_message_counts()
+            call_summary = calls.get_call_summary()
+            rating_label, rating_desc, rating_score = sentiment.calculate_relationship_rating()
+            start, end = metrics.get_date_range()
+            total_days = metrics.get_total_days()
+            insights = sentiment.generate_key_insights()
+            avg_response = metrics.get_average_response_time()
+
+            # Store everything in session state so it persists across reruns
+            st.session_state.analysis_results = {
+                'dashboard_status': dashboard_status,
+                'dashboard_errors': dashboard_errors,
+                'dashboard_bytes': dashboard_bytes,
+                'flashcards': flashcard_data,
+                'msg_count': len(messages),
+                'msg_counts': msg_counts,
+                'call_summary': call_summary,
+                'rating_label': rating_label,
+                'rating_score': rating_score,
+                'date_start': start.strftime('%b %d, %Y'),
+                'date_end': end.strftime('%b %d, %Y'),
+                'total_days': total_days,
+                'insights': insights,
+                'avg_response': avg_response,
+                'participant_mapping': participant_mapping,
+            }
+
             progress.progress(100)
 
-            # Show status summary
             successful = sum(dashboard_status.values())
             if successful == 3:
                 status.text("💕 Your love story is ready!")
@@ -766,144 +811,170 @@ if uploaded_file is not None:
                 status.text("⚠️ Dashboard generation encountered issues")
             st.balloons()
 
+            os.unlink(temp_path)
+            st.rerun()
+
+        # ============================================================
+        # DISPLAY RESULTS (persists across reruns via session_state)
+        # ============================================================
+        if st.session_state.get('analysis_results'):
+            r = st.session_state.analysis_results
+
             st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
 
             # Quick stats with romantic styling
             st.markdown("### 💕 Your Love at a Glance")
 
-            msg_counts = metrics.get_message_counts()
-            call_summary = calls.get_call_summary()
-            rating_label, rating_desc, rating_score = sentiment.calculate_relationship_rating()
-
             col1, col2, col3, col4 = st.columns(4)
-
             with col1:
-                st.metric("💬 Messages", f"{len(messages):,}")
+                st.metric("💬 Messages", f"{r['msg_count']:,}")
             with col2:
-                st.metric("💯 Love Score", f"{rating_score:.0f}/100")
+                st.metric("💯 Love Score", f"{r['rating_score']:.0f}/100")
             with col3:
-                st.metric("📞 Calls", f"{call_summary['total_calls']:,}")
+                st.metric("📞 Calls", f"{r['call_summary']['total_calls']:,}")
             with col4:
-                st.metric("⏰ Hours Talking", f"{call_summary['total_call_time_hours']:.1f}")
+                st.metric("⏰ Hours Talking", f"{r['call_summary']['total_call_time_hours']:.1f}")
 
-            start, end = metrics.get_date_range()
-            st.info(f"💕 Your journey: **{start.strftime('%b %d, %Y')}** to **{end.strftime('%b %d, %Y')}** ({metrics.get_total_days()} days of love)")
+            st.info(f"💕 Your journey: **{r['date_start']}** to **{r['date_end']}** ({r['total_days']} days of love)")
 
             st.markdown("### 💡 Key Insights About Your Love")
-            insights = sentiment.generate_key_insights()
-            for insight in insights:
+            for insight in r['insights']:
                 st.markdown(f"💕 {insight}")
 
             st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
 
             st.markdown("### 📊 Your Love Dashboards")
 
+            # Export All as PDF button
+            pdf_images = []
+            for key in ['main', 'traits', 'calls']:
+                if r['dashboard_status'].get(key) and key in r['dashboard_bytes']:
+                    pdf_images.append(r['dashboard_bytes'][key])
+
+            if pdf_images:
+                from PIL import Image as PILImage
+                pil_pages = []
+                for img_bytes in pdf_images:
+                    pil_pages.append(PILImage.open(BytesIO(img_bytes)).convert('RGB'))
+
+                pdf_buffer = BytesIO()
+                if len(pil_pages) == 1:
+                    pil_pages[0].save(pdf_buffer, format='PDF')
+                else:
+                    pil_pages[0].save(pdf_buffer, format='PDF', save_all=True,
+                                      append_images=pil_pages[1:])
+                pdf_buffer.seek(0)
+
+                st.download_button(
+                    "📄 Export All Dashboards as PDF",
+                    pdf_buffer.getvalue(),
+                    file_name="love_analysis_complete.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    key="export_pdf"
+                )
+
             tab1, tab2, tab3 = st.tabs(["💕 Main Dashboard", "🎭 Traits Analysis", "📞 Call Statistics"])
 
             with tab1:
-                if dashboard_status['main']:
-                    st.image(main_path, use_container_width=True)
-                    with open(main_path, 'rb') as f:
-                        st.download_button(
-                            "💕 Download Main Dashboard",
-                            f.read(),
-                            file_name="love_dashboard.png",
-                            mime="image/png",
-                            use_container_width=True
-                        )
+                if r['dashboard_status']['main'] and 'main' in r['dashboard_bytes']:
+                    st.image(r['dashboard_bytes']['main'], use_container_width=True)
+                    st.download_button(
+                        "💕 Download Main Dashboard",
+                        r['dashboard_bytes']['main'],
+                        file_name="love_dashboard.png",
+                        mime="image/png",
+                        use_container_width=True,
+                        key="dl_main"
+                    )
                 else:
-                    st.error(f"💔 Main dashboard could not be generated. Error: {dashboard_errors.get('main', 'Unknown error')}")
-                    st.info("Please try again or contact support if the issue persists.")
+                    st.error(f"💔 Main dashboard could not be generated. Error: {r['dashboard_errors'].get('main', 'Unknown error')}")
 
             with tab2:
-                if dashboard_status['traits']:
-                    st.image(traits_path, use_container_width=True)
-                    with open(traits_path, 'rb') as f:
-                        st.download_button(
-                            "💕 Download Traits Dashboard",
-                            f.read(),
-                            file_name="traits_dashboard.png",
-                            mime="image/png",
-                            use_container_width=True
-                        )
+                if r['dashboard_status']['traits'] and 'traits' in r['dashboard_bytes']:
+                    st.image(r['dashboard_bytes']['traits'], use_container_width=True)
+                    st.download_button(
+                        "💕 Download Traits Dashboard",
+                        r['dashboard_bytes']['traits'],
+                        file_name="traits_dashboard.png",
+                        mime="image/png",
+                        use_container_width=True,
+                        key="dl_traits"
+                    )
                 else:
-                    st.error(f"💔 Traits dashboard could not be generated. Error: {dashboard_errors.get('traits', 'Unknown error')}")
-                    st.info("Please try again or contact support if the issue persists.")
+                    st.error(f"💔 Traits dashboard could not be generated. Error: {r['dashboard_errors'].get('traits', 'Unknown error')}")
 
             with tab3:
-                if dashboard_status['calls']:
-                    st.image(call_path, use_container_width=True)
-                    with open(call_path, 'rb') as f:
-                        st.download_button(
-                            "💕 Download Call Dashboard",
-                            f.read(),
-                            file_name="call_dashboard.png",
-                            mime="image/png",
-                            use_container_width=True
-                        )
+                if r['dashboard_status']['calls'] and 'calls' in r['dashboard_bytes']:
+                    st.image(r['dashboard_bytes']['calls'], use_container_width=True)
+                    st.download_button(
+                        "💕 Download Call Dashboard",
+                        r['dashboard_bytes']['calls'],
+                        file_name="call_dashboard.png",
+                        mime="image/png",
+                        use_container_width=True,
+                        key="dl_calls"
+                    )
                 else:
-                    st.error(f"💔 Call dashboard could not be generated. Error: {dashboard_errors.get('calls', 'Unknown error')}")
-                    st.info("Please try again or contact support if the issue persists.")
+                    st.error(f"💔 Call dashboard could not be generated. Error: {r['dashboard_errors'].get('calls', 'Unknown error')}")
 
             # Shareable Flashcards Section
-            if flashcards:
+            if r['flashcards']:
                 st.markdown('<div class="heart-divider">💕 💕 💕</div>', unsafe_allow_html=True)
                 st.markdown("### 💕 Share Your Love Story")
-                st.markdown("Beautiful flashcards you can share on WhatsApp!")
+                st.markdown("Download your flashcard, then share it with your love on WhatsApp!")
 
-                for i in range(0, len(flashcards), 2):
+                for i in range(0, len(r['flashcards']), 2):
                     cols = st.columns(2)
                     for j, col in enumerate(cols):
                         idx = i + j
-                        if idx < len(flashcards):
-                            card = flashcards[idx]
-                            card_bytes = FlashcardGenerator.image_to_bytes(card['image'])
+                        if idx < len(r['flashcards']):
+                            card = r['flashcards'][idx]
                             with col:
-                                st.image(card_bytes, caption=card['title'],
+                                st.image(card['image_bytes'], caption=card['title'],
                                          use_container_width=True)
 
-                                share_url = FlashcardGenerator.get_whatsapp_share_url(
-                                    card['share_text']
-                                )
-                                st.markdown(
-                                    f'<a href="{share_url}" target="_blank" '
-                                    f'class="whatsapp-btn">'
-                                    f'Share on WhatsApp</a>',
-                                    unsafe_allow_html=True
-                                )
-
-                                st.download_button(
-                                    f"Download {card['title']}",
-                                    card_bytes,
-                                    file_name=f"love_flashcard_{idx + 1}.png",
-                                    mime="image/png",
-                                    use_container_width=True,
-                                    key=f"flashcard_dl_{idx}"
-                                )
+                                dl_col, share_col = st.columns(2)
+                                with dl_col:
+                                    st.download_button(
+                                        "📥 Save Image",
+                                        card['image_bytes'],
+                                        file_name=f"love_flashcard_{idx + 1}.png",
+                                        mime="image/png",
+                                        use_container_width=True,
+                                        key=f"flashcard_dl_{idx}"
+                                    )
+                                with share_col:
+                                    share_url = FlashcardGenerator.get_whatsapp_share_url(
+                                        card['share_text']
+                                    )
+                                    st.markdown(
+                                        f'<a href="{share_url}" target="_blank" '
+                                        f'class="whatsapp-btn">'
+                                        f'WhatsApp</a>',
+                                        unsafe_allow_html=True
+                                    )
 
             with st.expander("📋 Detailed Statistics"):
                 col1, col2 = st.columns(2)
 
                 with col1:
                     st.markdown("**💬 Message Counts:**")
-                    for sender, count in msg_counts.items():
-                        name = participant_mapping.get(sender, sender)
+                    for sender, count in r['msg_counts'].items():
+                        name = r['participant_mapping'].get(sender, sender)
                         st.markdown(f"• {name}: {count:,} messages")
 
                     st.markdown("**⏰ Response Times:**")
-                    avg_response = metrics.get_average_response_time()
-                    for sender, time in avg_response.items():
-                        name = participant_mapping.get(sender, sender)
+                    for sender, time in r['avg_response'].items():
+                        name = r['participant_mapping'].get(sender, sender)
                         st.markdown(f"• {name}: {time:.1f} min average")
 
                 with col2:
                     st.markdown("**📞 Call Statistics:**")
-                    st.markdown(f"• Video calls: {call_summary['total_video_calls']:,}")
-                    st.markdown(f"• Voice calls: {call_summary['total_voice_calls']:,}")
-                    st.markdown(f"• Total time: {call_summary['total_call_time_hours']:.1f} hours")
-                    st.markdown(f"• Longest call: {call_summary['longest_video_call_min']:.0f} min")
-
-            os.unlink(temp_path)
+                    st.markdown(f"• Video calls: {r['call_summary']['total_video_calls']:,}")
+                    st.markdown(f"• Voice calls: {r['call_summary']['total_voice_calls']:,}")
+                    st.markdown(f"• Total time: {r['call_summary']['total_call_time_hours']:.1f} hours")
+                    st.markdown(f"• Longest call: {r['call_summary']['longest_video_call_min']:.0f} min")
 
     except Exception as e:
         st.error(f"Error analyzing chat: {str(e)}")
