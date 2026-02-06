@@ -9,6 +9,7 @@ import os
 import sys
 from datetime import datetime
 from io import BytesIO
+import streamlit.components.v1 as components
 
 # Add execution directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'execution'))
@@ -21,6 +22,11 @@ from dashboard_generator import DashboardGenerator
 from traits_analyzer import TraitsAnalyzer
 from traits_dashboard import TraitsDashboardGenerator
 from video_call_analyzer import VideoCallAnalyzer, VideoCallDashboard
+from razorpay_handler import create_order, verify_payment_signature, get_razorpay_keys, verify_payment_by_id
+
+# Payment configuration
+PAYMENT_AMOUNT = 9900  # ₹99 in paise
+PAYMENT_ENABLED = True  # Set to False to disable payment requirement
 
 # Page config
 st.set_page_config(
@@ -62,6 +68,16 @@ st.markdown("""
 st.markdown('<h1 class="main-header">💬 WhatsApp Chat Analyzer</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">Upload your WhatsApp chat export and get comprehensive relationship insights</p>', unsafe_allow_html=True)
 
+# Initialize session state for payment
+if 'payment_completed' not in st.session_state:
+    st.session_state.payment_completed = False
+if 'payment_id' not in st.session_state:
+    st.session_state.payment_id = None
+if 'order_id' not in st.session_state:
+    st.session_state.order_id = None
+if 'show_checkout' not in st.session_state:
+    st.session_state.show_checkout = False
+
 # Sidebar instructions
 with st.sidebar:
     st.header("📱 How to Export Your Chat")
@@ -92,11 +108,131 @@ with st.sidebar:
     """)
 
 # Main content
-uploaded_file = st.file_uploader(
-    "Upload your WhatsApp chat export (.txt file)",
-    type=['txt'],
-    help="Export from WhatsApp: Settings > Chats > Export Chat > Without Media"
-)
+# Check if Razorpay is configured
+key_id, key_secret = get_razorpay_keys()
+razorpay_configured = bool(key_id and key_secret)
+
+# Payment flow
+if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_completed:
+    st.markdown("### 💳 One-Time Payment")
+    st.markdown("""
+    Get comprehensive analysis of your WhatsApp chat including:
+    - **Relationship Dashboard** with score and insights
+    - **Traits Analysis** for both partners
+    - **Video Call Statistics** and patterns
+
+    **Price: ₹99** (one-time payment)
+    """)
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("💳 Pay ₹99 to Unlock Analysis", type="primary", use_container_width=True):
+            # Create Razorpay order
+            order = create_order(PAYMENT_AMOUNT)
+            if order:
+                st.session_state.order_id = order['id']
+                st.session_state.show_checkout = True
+            else:
+                st.error("Failed to create payment order. Please try again.")
+
+    # Show Razorpay checkout if order created
+    if st.session_state.show_checkout and st.session_state.order_id:
+        st.markdown("---")
+        st.info("🔐 Complete your payment in the popup window below")
+
+        # Embed Razorpay checkout
+        checkout_html = f'''
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <div id="razorpay-container" style="text-align: center; padding: 20px;">
+            <button id="pay-btn" style="
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 40px;
+                font-size: 18px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            ">Click to Open Payment</button>
+            <p style="margin-top: 15px; color: #666;">Click the button above to open the payment window</p>
+        </div>
+        <script>
+            var options = {{
+                "key": "{key_id}",
+                "amount": "{PAYMENT_AMOUNT}",
+                "currency": "INR",
+                "name": "WhatsApp Chat Analyzer",
+                "description": "One-time Analysis Access",
+                "order_id": "{st.session_state.order_id}",
+                "handler": function (response) {{
+                    document.getElementById('razorpay-container').innerHTML = `
+                        <div style="background: #d4edda; padding: 20px; border-radius: 10px; color: #155724;">
+                            <h3>✅ Payment Successful!</h3>
+                            <p><strong>Payment ID:</strong> ${{response.razorpay_payment_id}}</p>
+                            <p>Please copy the Payment ID above and enter it below to verify.</p>
+                        </div>
+                    `;
+                }},
+                "theme": {{
+                    "color": "#667eea"
+                }}
+            }};
+
+            var rzp = new Razorpay(options);
+            document.getElementById('pay-btn').onclick = function(e) {{
+                rzp.open();
+                e.preventDefault();
+            }};
+        </script>
+        '''
+        components.html(checkout_html, height=200)
+
+        # Manual payment verification
+        st.markdown("---")
+        st.markdown("**After completing payment, enter your Payment ID below:**")
+        payment_id_input = st.text_input(
+            "Payment ID (starts with pay_)",
+            placeholder="pay_xxxxxxxxxxxxx",
+            key="payment_verification"
+        )
+
+        if st.button("✅ Verify Payment", type="primary"):
+            if payment_id_input and payment_id_input.startswith("pay_"):
+                # Verify payment via API
+                if verify_payment_by_id(payment_id_input):
+                    st.session_state.payment_completed = True
+                    st.session_state.payment_id = payment_id_input
+                    st.session_state.show_checkout = False
+                    st.success("✅ Payment verified! You can now upload your chat.")
+                    st.rerun()
+                else:
+                    st.error("❌ Could not verify payment. Please check the Payment ID and try again.")
+            else:
+                st.warning("Please enter a valid Payment ID (starts with 'pay_')")
+
+    st.markdown("---")
+    st.markdown("""
+    <p style="text-align: center; color: #888; font-size: 12px;">
+    🔒 Secure payment via Razorpay | 💳 All major cards & UPI accepted
+    </p>
+    """, unsafe_allow_html=True)
+
+elif not PAYMENT_ENABLED or not razorpay_configured:
+    # Payment disabled or not configured - show free access
+    if PAYMENT_ENABLED and not razorpay_configured:
+        st.info("💡 Payment gateway not configured. Enjoying free access!")
+
+# Show file uploader only if payment completed or payment disabled
+if st.session_state.payment_completed or not PAYMENT_ENABLED or not razorpay_configured:
+    if st.session_state.payment_completed:
+        st.success(f"✅ Payment verified! (ID: {st.session_state.payment_id})")
+
+    uploaded_file = st.file_uploader(
+        "Upload your WhatsApp chat export (.txt file)",
+        type=['txt'],
+        help="Export from WhatsApp: Settings > Chats > Export Chat > Without Media"
+    )
+else:
+    uploaded_file = None
 
 if uploaded_file is not None:
     # Read the file

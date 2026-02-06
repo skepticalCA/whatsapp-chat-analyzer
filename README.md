@@ -102,6 +102,29 @@ Special content types detected:
 - **Local**: All data stays on your machine
 - Chat files are excluded from git via `.gitignore`
 
+## 💳 Payment Integration (Optional)
+
+The app supports Razorpay payment integration. Users can be required to pay ₹99 before accessing the analysis.
+
+### Setting up Razorpay
+
+1. Create a [Razorpay account](https://razorpay.com/)
+2. Get your API keys from Dashboard → Settings → API Keys
+3. Add secrets to Streamlit Cloud:
+   - Go to your app settings on [share.streamlit.io](https://share.streamlit.io)
+   - Click "Secrets" in the left sidebar
+   - Add your keys:
+   ```toml
+   RAZORPAY_KEY_ID = "rzp_live_xxxxxxxxxxxx"
+   RAZORPAY_KEY_SECRET = "xxxxxxxxxxxxxxxxxxxx"
+   ```
+
+### Disabling Payment
+
+To run the app without payment requirement:
+- Don't set the Razorpay environment variables, OR
+- Set `PAYMENT_ENABLED = False` in `app.py`
+
 ## License
 
 MIT License
