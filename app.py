@@ -23,7 +23,7 @@ from dashboard_generator import DashboardGenerator
 from traits_analyzer import TraitsAnalyzer
 from traits_dashboard import TraitsDashboardGenerator
 from video_call_analyzer import VideoCallAnalyzer, VideoCallDashboard
-from razorpay_handler import create_order, get_razorpay_keys
+from razorpay_handler import create_order, get_razorpay_keys, create_payment_link, verify_payment_link
 from flashcard_generator import FlashcardGenerator
 
 # Payment configuration
@@ -46,6 +46,8 @@ STATE_DEFAULTS = {
     'payment_id': None,
     'order_id': None,
     'show_checkout': False,
+    'payment_link_id': None,
+    'payment_link_url': None,
     'analysis_results': None,
     'uploaded_file_content': None,
     'participant_mapping': None,
@@ -941,16 +943,22 @@ def render_landing_page():
                 st.session_state.page = 'upload'
                 st.rerun()
     else:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("Unlock My Love Report 💕", type="primary", use_container_width=True):
-                order = create_order(PAYMENT_AMOUNT)
-                if order:
-                    st.session_state.order_id = order['id']
-                    st.session_state.show_checkout = True
-                    st.rerun()
-                else:
-                    st.error("Failed to create order. Please try again.")
+        # Check if we already have a payment link ready
+        has_link = bool(st.session_state.payment_link_url and st.session_state.payment_link_id)
+
+        if not has_link:
+            # Show button to create payment link
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("Unlock My Love Report 💕", type="primary", use_container_width=True):
+                    link = create_payment_link(PAYMENT_AMOUNT)
+                    if link:
+                        st.session_state.payment_link_id = link['id']
+                        st.session_state.payment_link_url = link['short_url']
+                        st.session_state.show_checkout = True
+                        st.rerun()
+                    else:
+                        st.error("Failed to create payment. Please try again.")
 
         # Trust badges
         st.markdown(
@@ -962,84 +970,32 @@ def render_landing_page():
             unsafe_allow_html=True
         )
 
-        # Razorpay checkout
-        if st.session_state.show_checkout and st.session_state.order_id:
+        # Payment link checkout (opens in new tab — full page, UPI works)
+        if has_link and st.session_state.show_checkout:
             st.markdown("---")
-            checkout_html = f'''
-            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-            <div id="razorpay-container" style="text-align: center; padding: 20px;">
-                <button id="pay-btn" style="
-                    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-                    color: white;
-                    padding: 18px 50px;
-                    font-size: 18px;
-                    border: none;
-                    border-radius: 30px;
-                    cursor: pointer;
-                    font-weight: bold;
-                    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
-                ">💕 Pay ₹99 Now</button>
-                <p style="color: #666; margin-top: 15px;">Click to open secure payment window</p>
-            </div>
-            <script>
-                var options = {{
-                    "key": "{key_id}",
-                    "amount": "{PAYMENT_AMOUNT}",
-                    "currency": "INR",
-                    "name": "Love Chat Analyzer",
-                    "description": "Unlock Your Love Report",
-                    "order_id": "{st.session_state.order_id}",
-                    "handler": function (response) {{
-                        localStorage.setItem('razorpay_payment_id', response.razorpay_payment_id);
-                        document.getElementById('razorpay-container').innerHTML =
-                            '<div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); padding: 25px; border-radius: 15px;">' +
-                            '<h3 style="color: #155724;">💕 Payment Successful!</h3>' +
-                            '<p style="color: #155724;">Click the button below to unlock your report</p>' +
-                            '<p style="color: #666; font-size: 12px; margin-top: 10px;">Payment ID: ' + response.razorpay_payment_id + '</p></div>';
-                    }},
-                    "theme": {{
-                        "color": "#c44569"
-                    }},
-                    "modal": {{
-                        "ondismiss": function() {{
-                            document.getElementById('razorpay-container').innerHTML +=
-                                '<p style="color: #dc3545; margin-top: 10px;">Payment cancelled. Click the button to try again.</p>';
-                        }}
-                    }}
-                }};
-                var rzp = new Razorpay(options);
-                document.getElementById('pay-btn').onclick = function(e) {{
-                    rzp.open();
-                    e.preventDefault();
-                }};
-            </script>
-            '''
-            components.html(checkout_html, height=250)
+
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.link_button(
+                    "💕 Pay ₹99 Now — Opens Secure Page",
+                    st.session_state.payment_link_url,
+                    use_container_width=True,
+                    type="primary"
+                )
+                st.caption("Opens Razorpay in a new tab. UPI, cards, netbanking all supported.")
 
             st.markdown("---")
             st.markdown("**After completing payment, click below:**")
 
             if st.button("✅ I've Completed Payment — Unlock Results", type="primary", use_container_width=True):
-                import requests
-                try:
-                    response = requests.get(
-                        f"https://api.razorpay.com/v1/orders/{st.session_state.order_id}",
-                        auth=(key_id, key_secret)
-                    )
-                    if response.status_code == 200:
-                        order_data = response.json()
-                        if order_data.get('status') == 'paid':
-                            st.session_state.payment_completed = True
-                            st.session_state.show_checkout = False
-                            st.session_state.page = 'upload'
-                            st.balloons()
-                            st.rerun()
-                        else:
-                            st.warning("Payment not yet received. Please complete the payment first, then click this button.")
-                    else:
-                        st.error("Could not verify payment. Please try again.")
-                except Exception:
-                    st.error("Verification error. Please try again.")
+                if verify_payment_link(st.session_state.payment_link_id):
+                    st.session_state.payment_completed = True
+                    st.session_state.show_checkout = False
+                    st.session_state.page = 'upload'
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.warning("Payment not yet received. Please complete the payment first, then click this button.")
 
 
 # ============================================================

@@ -12,6 +12,7 @@ from typing import Tuple, Optional
 # Razorpay API endpoints
 RAZORPAY_ORDER_URL = "https://api.razorpay.com/v1/orders"
 RAZORPAY_PAYMENT_URL = "https://api.razorpay.com/v1/payments"
+RAZORPAY_PAYMENT_LINKS_URL = "https://api.razorpay.com/v1/payment_links"
 
 # Default amount in paise (₹99 = 9900 paise)
 DEFAULT_AMOUNT = 9900
@@ -151,6 +152,74 @@ def verify_payment_by_id(payment_id: str) -> bool:
 
     except Exception as e:
         print(f"Error verifying payment: {e}")
+        return False
+
+
+def create_payment_link(amount: int = DEFAULT_AMOUNT) -> Optional[dict]:
+    """
+    Create a Razorpay Payment Link (hosted checkout page).
+
+    Returns:
+        Dict with 'id', 'short_url', etc. or None if failed
+    """
+    key_id, key_secret = get_razorpay_keys()
+
+    if not key_id or not key_secret:
+        return None
+
+    try:
+        response = requests.post(
+            RAZORPAY_PAYMENT_LINKS_URL,
+            auth=(key_id, key_secret),
+            json={
+                "amount": amount,
+                "currency": CURRENCY,
+                "description": "Unlock Your Love Report 💕",
+                "notes": {
+                    "product": "WhatsApp Chat Analyzer",
+                    "description": "One-time analysis access"
+                },
+                "expire_by": int(__import__('time').time()) + 1800,  # 30 min expiry
+            }
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Razorpay payment link creation failed: {response.text}")
+            return None
+
+    except Exception as e:
+        print(f"Error creating payment link: {e}")
+        return None
+
+
+def verify_payment_link(link_id: str) -> bool:
+    """
+    Check if a payment link has been paid.
+
+    Returns:
+        True if the link status is 'paid', False otherwise
+    """
+    key_id, key_secret = get_razorpay_keys()
+
+    if not key_id or not key_secret:
+        return False
+
+    try:
+        response = requests.get(
+            f"{RAZORPAY_PAYMENT_LINKS_URL}/{link_id}",
+            auth=(key_id, key_secret)
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("status") == "paid"
+
+        return False
+
+    except Exception as e:
+        print(f"Error verifying payment link: {e}")
         return False
 
 
