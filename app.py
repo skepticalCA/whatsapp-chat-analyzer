@@ -686,54 +686,36 @@ def get_discovery_cards_html():
     ]
     items = ""
     for emoji, text in cards:
-        items += f'''
-        <div class="discovery-card">
-            <span class="card-emoji">{emoji}</span>
-            <span class="card-text">{text}</span>
-        </div>'''
+        items += f'<div class="discovery-card"><span class="card-emoji">{emoji}</span><span class="card-text">{text}</span></div>'
 
-    return f'''
-    <div style="text-align:center; margin: 2rem 0 0.5rem;">
-        <h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
-            Discover what your chats reveal 👀
-        </h3>
-    </div>
-    <div class="discovery-grid">
-        {items}
-    </div>
-    '''
+    return (
+        '<div style="text-align:center; margin: 2rem 0 0.5rem;">'
+        '<h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">Discover what your chats reveal 👀</h3>'
+        '</div>'
+        f'<div class="discovery-grid">{items}</div>'
+    )
 
 
 def get_blurred_teaser_html():
     """Return pure CSS/HTML blurred dashboard mock (no real data)."""
-    return '''
-    <div class="teaser-container">
-        <div class="teaser-blur-bg">
-            <!-- Simulated dashboard shapes -->
-            <div style="position:absolute; top:8%; left:10%; width:80%; height:10%;
-                 background:linear-gradient(135deg, #c44569, #ff6b9d); border-radius:12px; opacity:0.7;"></div>
-            <div style="position:absolute; top:24%; left:8%; width:25%; height:25%;
-                 background:radial-gradient(circle, #ff6b9d 40%, #fce4ec 100%); border-radius:50%; opacity:0.6;"></div>
-            <div style="position:absolute; top:24%; left:40%; width:52%; height:8%;
-                 background:linear-gradient(90deg, #ffb6c1, #ff6b9d); border-radius:8px; opacity:0.5;"></div>
-            <div style="position:absolute; top:36%; left:40%; width:38%; height:8%;
-                 background:linear-gradient(90deg, #c44569, #ffb6c1); border-radius:8px; opacity:0.5;"></div>
-            <div style="position:absolute; top:48%; left:40%; width:45%; height:8%;
-                 background:linear-gradient(90deg, #ff6b9d, #fce4ec); border-radius:8px; opacity:0.5;"></div>
-            <div style="position:absolute; top:60%; left:5%; width:90%; height:18%;
-                 background:linear-gradient(135deg, #fff5f7, #fce4ec, #f8bbd0, #ffb6c1, #ff6b9d);
-                 border-radius:10px; opacity:0.5;"></div>
-            <div style="position:absolute; top:82%; left:5%; width:90%; height:12%;
-                 background:linear-gradient(90deg, #ffe4ec, #ffb6c1, #ff6b9d, #c44569);
-                 border-radius:8px; opacity:0.4;"></div>
-        </div>
-        <div class="teaser-overlay">
-            <span class="lock-icon">🔒</span>
-            <span class="teaser-text">Your love report is ready 💕</span>
-            <span class="teaser-sub">Unlock to see your full dashboard</span>
-        </div>
-    </div>
-    '''
+    return (
+        '<div class="teaser-container">'
+        '<div class="teaser-blur-bg">'
+        '<div style="position:absolute; top:8%; left:10%; width:80%; height:10%; background:linear-gradient(135deg, #c44569, #ff6b9d); border-radius:12px; opacity:0.7;"></div>'
+        '<div style="position:absolute; top:24%; left:8%; width:25%; height:25%; background:radial-gradient(circle, #ff6b9d 40%, #fce4ec 100%); border-radius:50%; opacity:0.6;"></div>'
+        '<div style="position:absolute; top:24%; left:40%; width:52%; height:8%; background:linear-gradient(90deg, #ffb6c1, #ff6b9d); border-radius:8px; opacity:0.5;"></div>'
+        '<div style="position:absolute; top:36%; left:40%; width:38%; height:8%; background:linear-gradient(90deg, #c44569, #ffb6c1); border-radius:8px; opacity:0.5;"></div>'
+        '<div style="position:absolute; top:48%; left:40%; width:45%; height:8%; background:linear-gradient(90deg, #ff6b9d, #fce4ec); border-radius:8px; opacity:0.5;"></div>'
+        '<div style="position:absolute; top:60%; left:5%; width:90%; height:18%; background:linear-gradient(135deg, #fff5f7, #fce4ec, #f8bbd0, #ffb6c1, #ff6b9d); border-radius:10px; opacity:0.5;"></div>'
+        '<div style="position:absolute; top:82%; left:5%; width:90%; height:12%; background:linear-gradient(90deg, #ffe4ec, #ffb6c1, #ff6b9d, #c44569); border-radius:8px; opacity:0.4;"></div>'
+        '</div>'
+        '<div class="teaser-overlay">'
+        '<span class="lock-icon">🔒</span>'
+        '<span class="teaser-text">Your love report is ready 💕</span>'
+        '<span class="teaser-sub">Unlock to see your full dashboard</span>'
+        '</div>'
+        '</div>'
+    )
 
 
 def get_testimonials_html():
@@ -748,22 +730,14 @@ def get_testimonials_html():
     ]
     bubbles = ""
     for text, author in testimonials:
-        bubbles += f'''
-        <div class="testimonial-bubble">
-            <span class="testimonial-text">{text}</span>
-            <span class="testimonial-author">{author}</span>
-        </div>'''
+        bubbles += f'<div class="testimonial-bubble"><span class="testimonial-text">{text}</span><span class="testimonial-author">{author}</span></div>'
 
-    return f'''
-    <div style="text-align:center; margin: 2rem 0 0.5rem;">
-        <h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
-            What couples are saying 💬
-        </h3>
-    </div>
-    <div class="testimonials-wrapper">
-        {bubbles}
-    </div>
-    '''
+    return (
+        '<div style="text-align:center; margin: 2rem 0 0.5rem;">'
+        '<h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">What couples are saying 💬</h3>'
+        '</div>'
+        f'<div class="testimonials-wrapper">{bubbles}</div>'
+    )
 
 
 def run_analysis_pipeline():
@@ -900,13 +874,14 @@ def run_analysis_pipeline():
 
 def render_landing_page():
     # --- 1. HERO SECTION ---
-    st.markdown('''
-    <div class="hero-section">
-        <h1>What your chats secretly say<br>about your relationship 👀</h1>
-        <p class="hook">We analyzed our chats… the results shocked us 💀</p>
-        <p class="sub-hook">Now you can unlock yours & discover the truth.</p>
-    </div>
-    ''', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hero-section">'
+        '<h1>What your chats secretly say<br>about your relationship 👀</h1>'
+        '<p class="hook">We analyzed our chats… the results shocked us 💀</p>'
+        '<p class="sub-hook">Now you can unlock yours &amp; discover the truth.</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # --- 2. DISCOVERY CARDS ---
     st.markdown(get_discovery_cards_html(), unsafe_allow_html=True)
@@ -918,48 +893,40 @@ def render_landing_page():
     st.markdown(get_testimonials_html(), unsafe_allow_html=True)
 
     # --- 5. SOCIAL PROOF ---
-    st.markdown('''
-    <div class="social-proof-strip">
-        <div class="proof-stat">
-            <span class="stat-number">5,000+</span>
-            <span class="stat-label">chats analyzed 💬</span>
-        </div>
-        <div class="proof-stat">
-            <span class="stat-number">2,100+</span>
-            <span class="stat-label">couples decoded ❤️</span>
-        </div>
-        <div class="proof-stat">
-            <span class="stat-number">43</span>
-            <span class="stat-label">reports unlocked today 👀</span>
-        </div>
-    </div>
-    ''', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="social-proof-strip">'
+        '<div class="proof-stat"><span class="stat-number">5,000+</span><span class="stat-label">chats analyzed 💬</span></div>'
+        '<div class="proof-stat"><span class="stat-number">2,100+</span><span class="stat-label">couples decoded ❤️</span></div>'
+        '<div class="proof-stat"><span class="stat-number">43</span><span class="stat-label">reports unlocked today 👀</span></div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # --- 6. WHAT YOU'LL UNLOCK ---
-    st.markdown('''
-    <div style="text-align:center; margin: 1.5rem 0 0.5rem;">
-        <h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
-            Unlock to see 🔓
-        </h3>
-    </div>
-    <div class="unlock-grid">
-        <div class="unlock-item"><span class="unlock-emoji">❤️</span> Love balance score</div>
-        <div class="unlock-item"><span class="unlock-emoji">📊</span> Compatibility insights</div>
-        <div class="unlock-item"><span class="unlock-emoji">🧠</span> Personality types</div>
-        <div class="unlock-item"><span class="unlock-emoji">💬</span> Communication patterns</div>
-        <div class="unlock-item"><span class="unlock-emoji">💔</span> Conflict triggers</div>
-        <div class="unlock-item"><span class="unlock-emoji">📈</span> Relationship timeline</div>
-    </div>
-    ''', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="text-align:center; margin: 1.5rem 0 0.5rem;">'
+        '<h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">Unlock to see 🔓</h3>'
+        '</div>'
+        '<div class="unlock-grid">'
+        '<div class="unlock-item"><span class="unlock-emoji">❤️</span> Love balance score</div>'
+        '<div class="unlock-item"><span class="unlock-emoji">📊</span> Compatibility insights</div>'
+        '<div class="unlock-item"><span class="unlock-emoji">🧠</span> Personality types</div>'
+        '<div class="unlock-item"><span class="unlock-emoji">💬</span> Communication patterns</div>'
+        '<div class="unlock-item"><span class="unlock-emoji">💔</span> Conflict triggers</div>'
+        '<div class="unlock-item"><span class="unlock-emoji">📈</span> Relationship timeline</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # --- 7. PRICE FRAMING ---
-    st.markdown('''
-    <div class="price-frame">
-        <div class="price-amount">₹99</div>
-        <p class="price-sub">One-time unlock</p>
-        <p class="price-coffee">Less than a cup of coffee ☕</p>
-    </div>
-    ''', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="price-frame">'
+        '<div class="price-amount">₹99</div>'
+        '<p class="price-sub">One-time unlock</p>'
+        '<p class="price-coffee">Less than a cup of coffee ☕</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # --- 8. PAYMENT CTA + CHECKOUT ---
     key_id, key_secret = get_razorpay_keys()
@@ -986,13 +953,14 @@ def render_landing_page():
                     st.error("Failed to create order. Please try again.")
 
         # Trust badges
-        st.markdown('''
-        <div class="trust-row">
-            <span class="trust-item">🔒 Secure payment</span>
-            <span class="trust-item">⚡ Instant access</span>
-            <span class="trust-item">📄 PDF report included</span>
-        </div>
-        ''', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="trust-row">'
+            '<span class="trust-item">🔒 Secure payment</span>'
+            '<span class="trust-item">⚡ Instant access</span>'
+            '<span class="trust-item">📄 PDF report included</span>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         # Razorpay checkout
         if st.session_state.show_checkout and st.session_state.order_id:
@@ -1087,43 +1055,26 @@ def render_upload_page():
             st.rerun()
             return
 
-    st.markdown('''
-    <div style="text-align:center; padding: 1.5rem 0 0.5rem;">
-        <h2 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
-            Payment successful! 🎉
-        </h2>
-        <p style="color: #666; font-size: 1.05rem;">
-            Now upload your WhatsApp chat to get your love report
-        </p>
-    </div>
-    ''', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="text-align:center; padding: 1.5rem 0 0.5rem;">'
+        '<h2 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">Payment successful! 🎉</h2>'
+        '<p style="color: #666; font-size: 1.05rem;">Now upload your WhatsApp chat to get your love report</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # Step guide
     with st.expander("📋 How to export your WhatsApp chat", expanded=True):
-        st.markdown('''
-        <div class="step-cards">
-            <div class="step-card">
-                <span class="step-number">1</span>
-                <span class="step-text">Open the WhatsApp chat you want to analyze 💬</span>
-            </div>
-            <div class="step-card">
-                <span class="step-number">2</span>
-                <span class="step-text">Tap ⋮ (menu) → More → Export Chat</span>
-            </div>
-            <div class="step-card">
-                <span class="step-number">3</span>
-                <span class="step-text">Choose "Without Media" to get a .txt file 📂</span>
-            </div>
-            <div class="step-card">
-                <span class="step-number">4</span>
-                <span class="step-text">If you get a .zip file, extract it first 📁</span>
-            </div>
-            <div class="step-card">
-                <span class="step-number">5</span>
-                <span class="step-text">Upload the .txt file below 🚀</span>
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="step-cards">'
+            '<div class="step-card"><span class="step-number">1</span><span class="step-text">Open the WhatsApp chat you want to analyze 💬</span></div>'
+            '<div class="step-card"><span class="step-number">2</span><span class="step-text">Tap ⋮ (menu) → More → Export Chat</span></div>'
+            '<div class="step-card"><span class="step-number">3</span><span class="step-text">Choose "Without Media" to get a .txt file 📂</span></div>'
+            '<div class="step-card"><span class="step-number">4</span><span class="step-text">If you get a .zip file, extract it first 📁</span></div>'
+            '<div class="step-card"><span class="step-number">5</span><span class="step-text">Upload the .txt file below 🚀</span></div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
     # File uploader
     st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
