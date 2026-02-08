@@ -160,12 +160,14 @@ def create_payment_link(amount: int = DEFAULT_AMOUNT) -> Optional[dict]:
     Create a Razorpay Payment Link (hosted checkout page).
 
     Returns:
-        Dict with 'id', 'short_url', etc. or None if failed
+        Dict with 'id', 'short_url', 'error' keys. On failure returns {'error': '...'}.
     """
+    import time as _time
+
     key_id, key_secret = get_razorpay_keys()
 
     if not key_id or not key_secret:
-        return None
+        return {"error": "Razorpay keys not configured"}
 
     try:
         response = requests.post(
@@ -174,24 +176,24 @@ def create_payment_link(amount: int = DEFAULT_AMOUNT) -> Optional[dict]:
             json={
                 "amount": amount,
                 "currency": CURRENCY,
-                "description": "Unlock Your Love Report 💕",
+                "description": "Unlock Your Love Report",
                 "notes": {
-                    "product": "WhatsApp Chat Analyzer",
-                    "description": "One-time analysis access"
+                    "product": "WhatsApp Chat Analyzer"
                 },
-                "expire_by": int(__import__('time').time()) + 1800,  # 30 min expiry
+                "expire_by": int(_time.time()) + 1800,
             }
         )
 
-        if response.status_code == 200:
+        if response.status_code in (200, 201):
             return response.json()
         else:
-            print(f"Razorpay payment link creation failed: {response.text}")
-            return None
+            error_msg = response.text
+            print(f"Razorpay payment link creation failed ({response.status_code}): {error_msg}")
+            return {"error": error_msg}
 
     except Exception as e:
         print(f"Error creating payment link: {e}")
-        return None
+        return {"error": str(e)}
 
 
 def verify_payment_link(link_id: str) -> bool:

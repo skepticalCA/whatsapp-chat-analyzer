@@ -952,13 +952,14 @@ def render_landing_page():
             with col2:
                 if st.button("Unlock My Love Report 💕", type="primary", use_container_width=True):
                     link = create_payment_link(PAYMENT_AMOUNT)
-                    if link:
+                    if link and link.get('short_url'):
                         st.session_state.payment_link_id = link['id']
                         st.session_state.payment_link_url = link['short_url']
                         st.session_state.show_checkout = True
                         st.rerun()
                     else:
-                        st.error("Failed to create payment. Please try again.")
+                        err = link.get('error', 'Unknown error') if link else 'No response'
+                        st.error(f"Failed to create payment: {err}")
 
         # Trust badges
         st.markdown(
