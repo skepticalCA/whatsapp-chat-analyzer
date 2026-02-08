@@ -27,7 +27,7 @@ from razorpay_handler import create_order, get_razorpay_keys
 from flashcard_generator import FlashcardGenerator
 
 # Payment configuration
-PAYMENT_AMOUNT = 7900  # ₹79 in paise
+PAYMENT_AMOUNT = 9900  # ₹99 in paise
 PAYMENT_ENABLED = True
 
 # Page config
@@ -47,7 +47,6 @@ STATE_DEFAULTS = {
     'order_id': None,
     'show_checkout': False,
     'analysis_results': None,
-    'blurred_previews': None,
     'uploaded_file_content': None,
     'participant_mapping': None,
     'participant_names': None,
@@ -254,8 +253,7 @@ st.markdown("""
         text-decoration: none;
     }
 
-    /* ===== NEW: Landing page styles ===== */
-
+    /* ===== Hero section ===== */
     .hero-section {
         text-align: center;
         padding: 3rem 1rem 1rem;
@@ -288,50 +286,245 @@ st.markdown("""
         margin-top: 0.3rem;
     }
 
-    /* Feature pointer grid */
-    .pointer-grid {
+    /* ===== Discovery cards ===== */
+    .discovery-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    @media (min-width: 768px) {
+        .discovery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .discovery-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 1.2rem;
+        border-radius: 18px;
+        text-align: center;
+        border: 1px solid rgba(255, 182, 193, 0.4);
+        box-shadow: 0 0 15px rgba(255, 107, 157, 0.12), 0 4px 12px rgba(0,0,0,0.04);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: default;
+    }
+    .discovery-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0 25px rgba(255, 107, 157, 0.25), 0 8px 20px rgba(0,0,0,0.06);
+    }
+    .discovery-card .card-emoji { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
+    .discovery-card .card-text { font-size: 0.92rem; color: #555; font-weight: 500; }
+
+    /* ===== Blurred dashboard teaser ===== */
+    .teaser-container {
+        position: relative;
+        max-width: 600px;
+        margin: 2rem auto;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(196, 69, 105, 0.15);
+        height: 320px;
+    }
+    .teaser-blur-bg {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%);
+        filter: blur(3px);
+        -webkit-filter: blur(3px);
+    }
+    .teaser-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+    .teaser-overlay .lock-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .teaser-overlay .teaser-text {
+        font-size: 1.2rem; font-weight: 700;
+        color: #c44569; text-align: center;
+    }
+    .teaser-overlay .teaser-sub {
+        font-size: 0.9rem; color: #888;
+        margin-top: 0.3rem;
+    }
+
+    /* ===== Testimonials ===== */
+    .testimonials-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        max-width: 100%;
+        scrollbar-width: none;
+    }
+    .testimonials-wrapper::-webkit-scrollbar { display: none; }
+
+    .testimonial-bubble {
+        scroll-snap-align: start;
+        flex: 0 0 260px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 1.2rem 1rem;
+        border-radius: 20px 20px 20px 4px;
+        border: 1px solid rgba(255, 182, 193, 0.5);
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.1);
+        font-size: 0.95rem;
+        color: #444;
+    }
+    .testimonial-bubble .testimonial-text {
+        font-style: italic;
+        line-height: 1.4;
+    }
+    .testimonial-bubble .testimonial-author {
+        display: block;
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
+        color: #aaa;
+        font-style: italic;
+    }
+
+    /* ===== Social proof ===== */
+    .social-proof-strip {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        padding: 1.5rem 1rem;
+        margin: 1rem auto;
+        max-width: 700px;
+    }
+    .proof-stat {
+        text-align: center;
+    }
+    .proof-stat .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #c44569;
+        display: block;
+    }
+    .proof-stat .stat-label {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    /* ===== What you'll unlock grid ===== */
+    .unlock-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 0.8rem;
-        padding: 1rem;
-        max-width: 750px;
-        margin: 0 auto;
+        max-width: 550px;
+        margin: 1rem auto;
+        padding: 0 1rem;
     }
     @media (max-width: 768px) {
-        .pointer-grid { grid-template-columns: repeat(2, 1fr); }
+        .unlock-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    .pointer-item {
-        background: #fff;
-        padding: 0.9rem 0.7rem;
-        border-radius: 12px;
+    .unlock-item {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 0.8rem;
+        border-radius: 14px;
         text-align: center;
-        border: 1px solid #ffccd5;
-        font-size: 0.9rem;
+        border: 1px solid rgba(255, 182, 193, 0.3);
+        font-size: 0.85rem;
         color: #555;
-        box-shadow: 0 2px 8px rgba(255, 107, 157, 0.1);
     }
-    .pointer-item .emoji { font-size: 1.4rem; display: block; margin-bottom: 0.4rem; }
+    .unlock-item .unlock-emoji { font-size: 1.3rem; display: block; margin-bottom: 0.3rem; }
 
-    /* Steps section */
-    .steps-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-        padding: 0.5rem 0;
-    }
-    .step-item {
-        background: #fff;
-        padding: 1rem;
-        border-radius: 15px;
+    /* ===== Price framing ===== */
+    .price-frame {
         text-align: center;
-        border: 1px solid #ffe0e8;
-        min-width: 140px;
-        flex: 1;
-        max-width: 180px;
+        padding: 2rem;
+        max-width: 400px;
+        margin: 1.5rem auto;
     }
-    .step-item .step-emoji { font-size: 1.8rem; display: block; margin-bottom: 0.3rem; }
-    .step-item .step-text { font-size: 0.85rem; color: #666; }
+    .price-frame .price-amount {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #c44569;
+        -webkit-text-fill-color: #c44569;
+        line-height: 1;
+    }
+    .price-frame .price-sub {
+        font-size: 1rem;
+        color: #888 !important;
+        -webkit-text-fill-color: #888 !important;
+        margin-top: 0.3rem;
+    }
+    .price-frame .price-coffee {
+        font-size: 0.95rem;
+        color: #e75480 !important;
+        -webkit-text-fill-color: #e75480 !important;
+        font-style: italic;
+        margin-top: 0.5rem;
+    }
+
+    /* ===== Trust badges ===== */
+    .trust-row {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+    }
+    .trust-item {
+        color: #888;
+        font-size: 0.9rem;
+    }
+
+    /* ===== Upload page step cards ===== */
+    .step-cards {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .step-card {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 1rem 1.2rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 182, 193, 0.35);
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .step-card .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px; height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b9d, #c44569);
+        color: white !important;
+        -webkit-text-fill-color: white !important;
+        font-weight: 700; font-size: 0.85rem;
+    }
+    .step-card .step-text {
+        color: #555;
+        font-size: 0.95rem;
+    }
+
+    /* Section divider */
+    .heart-divider {
+        text-align: center !important;
+        font-size: 1.5rem !important;
+        margin: 1.5rem 0 !important;
+    }
 
     /* Upload section */
     .upload-section {
@@ -348,136 +541,6 @@ st.markdown("""
     .upload-section h3 {
         color: #c44569 !important;
         -webkit-text-fill-color: #c44569 !important;
-    }
-
-    /* Paywall styles */
-    .paywall-card {
-        background: linear-gradient(135deg, #fff5f7 0%, #ffe4ec 100%);
-        padding: 2.5rem 2rem;
-        border-radius: 20px;
-        text-align: center;
-        border: 2px solid #ffb6c1;
-        margin: 2rem auto;
-        max-width: 500px;
-        box-shadow: 0 4px 25px rgba(255, 107, 157, 0.2);
-    }
-
-    .paywall-card h2 {
-        color: #c44569 !important;
-        -webkit-text-fill-color: #c44569 !important;
-        font-size: 1.8rem !important;
-        margin-bottom: 0.5rem;
-    }
-
-    .paywall-price {
-        font-size: 3.5rem !important;
-        font-weight: 800 !important;
-        color: #c44569 !important;
-        -webkit-text-fill-color: #c44569 !important;
-        margin: 0.5rem 0;
-    }
-
-    .paywall-sub {
-        color: #888 !important;
-        -webkit-text-fill-color: #888 !important;
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .paywall-coffee {
-        color: #e75480 !important;
-        -webkit-text-fill-color: #e75480 !important;
-        font-size: 0.95rem;
-        font-style: italic;
-    }
-
-    /* Score reveal */
-    .score-container {
-        text-align: center;
-        padding: 2rem;
-        background: #fff;
-        border-radius: 20px;
-        border: 2px solid #ffb6c1;
-        margin: 1rem auto;
-        max-width: 400px;
-        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.15);
-    }
-
-    .score-label { color: #888; font-size: 1rem; margin-bottom: 0.5rem; }
-
-    .score-value {
-        font-size: 4.5rem;
-        font-weight: 800;
-        color: #c44569;
-        line-height: 1;
-    }
-
-    .score-hidden {
-        filter: blur(8px);
-        user-select: none;
-        -webkit-user-select: none;
-    }
-
-    .score-unit { font-size: 1.8rem; color: #ccc; font-weight: 400; }
-
-    .score-unlock { color: #e75480; font-size: 0.95rem; margin-top: 0.8rem; }
-
-    /* Locked cards */
-    .locked-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin: 1.5rem 0;
-    }
-    @media (max-width: 768px) {
-        .locked-grid { grid-template-columns: 1fr; }
-    }
-    .locked-card {
-        background: #fff;
-        padding: 1.5rem;
-        border-radius: 15px;
-        border: 1px solid #ffccd5;
-        text-align: center;
-        position: relative;
-    }
-    .locked-card .lock-icon {
-        position: absolute;
-        top: 10px;
-        right: 12px;
-        font-size: 1.3rem;
-    }
-    .locked-card h4 {
-        color: #c44569 !important;
-        -webkit-text-fill-color: #c44569 !important;
-        margin-bottom: 0.5rem;
-    }
-    .locked-card .blurred-text {
-        filter: blur(5px);
-        user-select: none;
-        -webkit-user-select: none;
-        color: #666;
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-
-    /* Trust badges */
-    .trust-row {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        flex-wrap: wrap;
-        margin: 1.5rem 0;
-    }
-    .trust-item {
-        color: #888;
-        font-size: 0.9rem;
-    }
-
-    /* Section divider */
-    .heart-divider {
-        text-align: center !important;
-        font-size: 1.5rem !important;
-        margin: 1.5rem 0 !important;
     }
 
     /* Love card */
@@ -507,17 +570,6 @@ st.markdown("""
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
-
-def generate_blurred_preview(png_bytes, blur_radius=25):
-    """Generate a heavily blurred version of a dashboard PNG for the paywall teaser."""
-    from PIL import Image, ImageFilter
-    img = Image.open(BytesIO(png_bytes))
-    blurred = img.filter(ImageFilter.GaussianBlur(radius=blur_radius))
-    buf = BytesIO()
-    blurred.save(buf, format='PNG')
-    buf.seek(0)
-    return buf.getvalue()
-
 
 def get_loading_animation_html():
     """Return self-contained HTML/CSS/JS for the heart-fill loading animation."""
@@ -618,8 +670,104 @@ def get_loading_animation_html():
     '''
 
 
+def get_discovery_cards_html():
+    """Return HTML for the 10 insight discovery teaser cards."""
+    cards = [
+        ("❤️", "Who loves more"),
+        ("📊", "Compatibility based on your texts"),
+        ("⏱️", "Who replies faster"),
+        ("📉", "Effort imbalance insights"),
+        ("😤", "Who starts fights"),
+        ("💔", "Hidden conflict patterns"),
+        ("📞", "Who calls longer"),
+        ("🔁", "Conversation trends"),
+        ("👀", "Things you might have missed"),
+        ("🧠", "Your texting personality types"),
+    ]
+    items = ""
+    for emoji, text in cards:
+        items += f'''
+        <div class="discovery-card">
+            <span class="card-emoji">{emoji}</span>
+            <span class="card-text">{text}</span>
+        </div>'''
+
+    return f'''
+    <div style="text-align:center; margin: 2rem 0 0.5rem;">
+        <h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
+            Discover what your chats reveal 👀
+        </h3>
+    </div>
+    <div class="discovery-grid">
+        {items}
+    </div>
+    '''
+
+
+def get_blurred_teaser_html():
+    """Return pure CSS/HTML blurred dashboard mock (no real data)."""
+    return '''
+    <div class="teaser-container">
+        <div class="teaser-blur-bg">
+            <!-- Simulated dashboard shapes -->
+            <div style="position:absolute; top:8%; left:10%; width:80%; height:10%;
+                 background:linear-gradient(135deg, #c44569, #ff6b9d); border-radius:12px; opacity:0.7;"></div>
+            <div style="position:absolute; top:24%; left:8%; width:25%; height:25%;
+                 background:radial-gradient(circle, #ff6b9d 40%, #fce4ec 100%); border-radius:50%; opacity:0.6;"></div>
+            <div style="position:absolute; top:24%; left:40%; width:52%; height:8%;
+                 background:linear-gradient(90deg, #ffb6c1, #ff6b9d); border-radius:8px; opacity:0.5;"></div>
+            <div style="position:absolute; top:36%; left:40%; width:38%; height:8%;
+                 background:linear-gradient(90deg, #c44569, #ffb6c1); border-radius:8px; opacity:0.5;"></div>
+            <div style="position:absolute; top:48%; left:40%; width:45%; height:8%;
+                 background:linear-gradient(90deg, #ff6b9d, #fce4ec); border-radius:8px; opacity:0.5;"></div>
+            <div style="position:absolute; top:60%; left:5%; width:90%; height:18%;
+                 background:linear-gradient(135deg, #fff5f7, #fce4ec, #f8bbd0, #ffb6c1, #ff6b9d);
+                 border-radius:10px; opacity:0.5;"></div>
+            <div style="position:absolute; top:82%; left:5%; width:90%; height:12%;
+                 background:linear-gradient(90deg, #ffe4ec, #ffb6c1, #ff6b9d, #c44569);
+                 border-radius:8px; opacity:0.4;"></div>
+        </div>
+        <div class="teaser-overlay">
+            <span class="lock-icon">🔒</span>
+            <span class="teaser-text">Your love report is ready 💕</span>
+            <span class="teaser-sub">Unlock to see your full dashboard</span>
+        </div>
+    </div>
+    '''
+
+
+def get_testimonials_html():
+    """Return horizontal-scrolling testimonial chat bubbles."""
+    testimonials = [
+        ('"WHY do I love him more 😭"', "— Priya, Mumbai"),
+        ('"This is actually scary accurate 💀"', "— Rohan & Ananya"),
+        ('"We argued after seeing this 😂"', "— Sneha, Delhi"),
+        ('"Best ₹99 we\'ve spent 💕"', "— Aman & Riya"),
+        ('"I knew he texts less but seeing the numbers... 🥲"', "— Kavya, Bangalore"),
+        ('"Sent this to all my friends 🔥"', "— Arjun, Pune"),
+    ]
+    bubbles = ""
+    for text, author in testimonials:
+        bubbles += f'''
+        <div class="testimonial-bubble">
+            <span class="testimonial-text">{text}</span>
+            <span class="testimonial-author">{author}</span>
+        </div>'''
+
+    return f'''
+    <div style="text-align:center; margin: 2rem 0 0.5rem;">
+        <h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
+            What couples are saying 💬
+        </h3>
+    </div>
+    <div class="testimonials-wrapper">
+        {bubbles}
+    </div>
+    '''
+
+
 def run_analysis_pipeline():
-    """Run the full analysis pipeline and store results + blurred previews in session state."""
+    """Run the full analysis pipeline and store results in session state."""
     content = st.session_state.uploaded_file_content
     participant_mapping = st.session_state.participant_mapping
 
@@ -739,15 +887,6 @@ def run_analysis_pipeline():
             'participant_mapping': participant_mapping,
         }
 
-        # Generate blurred previews for paywall
-        blurred = {}
-        for key, img_bytes in dashboard_bytes.items():
-            try:
-                blurred[key] = generate_blurred_preview(img_bytes, blur_radius=25)
-            except Exception:
-                pass
-        st.session_state.blurred_previews = blurred
-
     finally:
         try:
             os.unlink(temp_path)
@@ -756,67 +895,237 @@ def run_analysis_pipeline():
 
 
 # ============================================================
-# PAGE: LANDING
+# PAGE: LANDING (Conversion Page)
 # ============================================================
 
 def render_landing_page():
-    # Hero section
+    # --- 1. HERO SECTION ---
     st.markdown('''
     <div class="hero-section">
         <h1>What your chats secretly say<br>about your relationship 👀</h1>
         <p class="hook">We analyzed our chats… the results shocked us 💀</p>
-        <p class="sub-hook">Now you can also upload your chats and discover the truth.</p>
+        <p class="sub-hook">Now you can unlock yours & discover the truth.</p>
     </div>
     ''', unsafe_allow_html=True)
 
-    # Feature pointers
+    # --- 2. DISCOVERY CARDS ---
+    st.markdown(get_discovery_cards_html(), unsafe_allow_html=True)
+
+    # --- 3. BLURRED DASHBOARD TEASER ---
+    st.markdown(get_blurred_teaser_html(), unsafe_allow_html=True)
+
+    # --- 4. TESTIMONIALS ---
+    st.markdown(get_testimonials_html(), unsafe_allow_html=True)
+
+    # --- 5. SOCIAL PROOF ---
+    st.markdown('''
+    <div class="social-proof-strip">
+        <div class="proof-stat">
+            <span class="stat-number">5,000+</span>
+            <span class="stat-label">chats analyzed 💬</span>
+        </div>
+        <div class="proof-stat">
+            <span class="stat-number">2,100+</span>
+            <span class="stat-label">couples decoded ❤️</span>
+        </div>
+        <div class="proof-stat">
+            <span class="stat-number">43</span>
+            <span class="stat-label">reports unlocked today 👀</span>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # --- 6. WHAT YOU'LL UNLOCK ---
     st.markdown('''
     <div style="text-align:center; margin: 1.5rem 0 0.5rem;">
         <h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
-            Here's what our analysis will reveal 👀
+            Unlock to see 🔓
         </h3>
     </div>
-    <div class="pointer-grid">
-        <div class="pointer-item"><span class="emoji">❤️</span> Who loves more</div>
-        <div class="pointer-item"><span class="emoji">📊</span> Compatibility score</div>
-        <div class="pointer-item"><span class="emoji">⏱️</span> Who replies faster</div>
-        <div class="pointer-item"><span class="emoji">📉</span> Effort imbalance</div>
-        <div class="pointer-item"><span class="emoji">😤</span> Who starts fights</div>
-        <div class="pointer-item"><span class="emoji">💔</span> Hidden conflict patterns</div>
-        <div class="pointer-item"><span class="emoji">📞</span> Who calls more</div>
-        <div class="pointer-item"><span class="emoji">🔁</span> Conversation trends</div>
-        <div class="pointer-item"><span class="emoji">🧠</span> Texting personality types</div>
+    <div class="unlock-grid">
+        <div class="unlock-item"><span class="unlock-emoji">❤️</span> Love balance score</div>
+        <div class="unlock-item"><span class="unlock-emoji">📊</span> Compatibility insights</div>
+        <div class="unlock-item"><span class="unlock-emoji">🧠</span> Personality types</div>
+        <div class="unlock-item"><span class="unlock-emoji">💬</span> Communication patterns</div>
+        <div class="unlock-item"><span class="unlock-emoji">💔</span> Conflict triggers</div>
+        <div class="unlock-item"><span class="unlock-emoji">📈</span> Relationship timeline</div>
     </div>
     ''', unsafe_allow_html=True)
 
-    # Steps to follow (collapsible)
-    with st.expander("📋 Steps to follow"):
+    # --- 7. PRICE FRAMING ---
+    st.markdown('''
+    <div class="price-frame">
+        <div class="price-amount">₹99</div>
+        <p class="price-sub">One-time unlock</p>
+        <p class="price-coffee">Less than a cup of coffee ☕</p>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # --- 8. PAYMENT CTA + CHECKOUT ---
+    key_id, key_secret = get_razorpay_keys()
+    razorpay_configured = bool(key_id and key_secret)
+
+    # If payment not needed, skip straight to upload
+    if not PAYMENT_ENABLED or not razorpay_configured:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("Get Started 💕", type="primary", use_container_width=True):
+                st.session_state.payment_completed = True
+                st.session_state.page = 'upload'
+                st.rerun()
+    else:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("Unlock My Love Report 💕", type="primary", use_container_width=True):
+                order = create_order(PAYMENT_AMOUNT)
+                if order:
+                    st.session_state.order_id = order['id']
+                    st.session_state.show_checkout = True
+                    st.rerun()
+                else:
+                    st.error("Failed to create order. Please try again.")
+
+        # Trust badges
         st.markdown('''
-        <div class="steps-grid">
-            <div class="step-item">
-                <span class="step-emoji">1️⃣</span>
-                <span class="step-text">Open WhatsApp chat 💬</span>
+        <div class="trust-row">
+            <span class="trust-item">🔒 Secure payment</span>
+            <span class="trust-item">⚡ Instant access</span>
+            <span class="trust-item">📄 PDF report included</span>
+        </div>
+        ''', unsafe_allow_html=True)
+
+        # Razorpay checkout
+        if st.session_state.show_checkout and st.session_state.order_id:
+            st.markdown("---")
+            checkout_html = f'''
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <div id="razorpay-container" style="text-align: center; padding: 20px;">
+                <button id="pay-btn" style="
+                    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+                    color: white;
+                    padding: 18px 50px;
+                    font-size: 18px;
+                    border: none;
+                    border-radius: 30px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+                ">💕 Pay ₹99 Now</button>
+                <p style="color: #666; margin-top: 15px;">Click to open secure payment window</p>
             </div>
-            <div class="step-item">
-                <span class="step-emoji">2️⃣</span>
-                <span class="step-text">Export without media 📤</span>
+            <script>
+                var options = {{
+                    "key": "{key_id}",
+                    "amount": "{PAYMENT_AMOUNT}",
+                    "currency": "INR",
+                    "name": "Love Chat Analyzer",
+                    "description": "Unlock Your Love Report",
+                    "order_id": "{st.session_state.order_id}",
+                    "handler": function (response) {{
+                        localStorage.setItem('razorpay_payment_id', response.razorpay_payment_id);
+                        document.getElementById('razorpay-container').innerHTML =
+                            '<div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); padding: 25px; border-radius: 15px;">' +
+                            '<h3 style="color: #155724;">💕 Payment Successful!</h3>' +
+                            '<p style="color: #155724;">Click the button below to unlock your report</p>' +
+                            '<p style="color: #666; font-size: 12px; margin-top: 10px;">Payment ID: ' + response.razorpay_payment_id + '</p></div>';
+                    }},
+                    "theme": {{
+                        "color": "#c44569"
+                    }},
+                    "modal": {{
+                        "ondismiss": function() {{
+                            document.getElementById('razorpay-container').innerHTML +=
+                                '<p style="color: #dc3545; margin-top: 10px;">Payment cancelled. Click the button to try again.</p>';
+                        }}
+                    }}
+                }};
+                var rzp = new Razorpay(options);
+                document.getElementById('pay-btn').onclick = function(e) {{
+                    rzp.open();
+                    e.preventDefault();
+                }};
+            </script>
+            '''
+            components.html(checkout_html, height=250)
+
+            st.markdown("---")
+            st.markdown("**After completing payment, click below:**")
+
+            if st.button("✅ I've Completed Payment — Unlock Results", type="primary", use_container_width=True):
+                import requests
+                try:
+                    response = requests.get(
+                        f"https://api.razorpay.com/v1/orders/{st.session_state.order_id}",
+                        auth=(key_id, key_secret)
+                    )
+                    if response.status_code == 200:
+                        order_data = response.json()
+                        if order_data.get('status') == 'paid':
+                            st.session_state.payment_completed = True
+                            st.session_state.show_checkout = False
+                            st.session_state.page = 'upload'
+                            st.balloons()
+                            st.rerun()
+                        else:
+                            st.warning("Payment not yet received. Please complete the payment first, then click this button.")
+                    else:
+                        st.error("Could not verify payment. Please try again.")
+                except Exception:
+                    st.error("Verification error. Please try again.")
+
+
+# ============================================================
+# PAGE: UPLOAD (Post-Payment)
+# ============================================================
+
+def render_upload_page():
+    # Guard: must have paid
+    if PAYMENT_ENABLED and not st.session_state.payment_completed:
+        key_id, _ = get_razorpay_keys()
+        if key_id:
+            st.session_state.page = 'landing'
+            st.rerun()
+            return
+
+    st.markdown('''
+    <div style="text-align:center; padding: 1.5rem 0 0.5rem;">
+        <h2 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
+            Payment successful! 🎉
+        </h2>
+        <p style="color: #666; font-size: 1.05rem;">
+            Now upload your WhatsApp chat to get your love report
+        </p>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # Step guide
+    with st.expander("📋 How to export your WhatsApp chat", expanded=True):
+        st.markdown('''
+        <div class="step-cards">
+            <div class="step-card">
+                <span class="step-number">1</span>
+                <span class="step-text">Open the WhatsApp chat you want to analyze 💬</span>
             </div>
-            <div class="step-item">
-                <span class="step-emoji">3️⃣</span>
-                <span class="step-text">Upload file below 📁</span>
+            <div class="step-card">
+                <span class="step-number">2</span>
+                <span class="step-text">Tap ⋮ (menu) → More → Export Chat</span>
             </div>
-            <div class="step-item">
-                <span class="step-emoji">4️⃣</span>
-                <span class="step-text">We analyse 🤖</span>
+            <div class="step-card">
+                <span class="step-number">3</span>
+                <span class="step-text">Choose "Without Media" to get a .txt file 📂</span>
             </div>
-            <div class="step-item">
-                <span class="step-emoji">5️⃣</span>
-                <span class="step-text">Unlock report 💕</span>
+            <div class="step-card">
+                <span class="step-number">4</span>
+                <span class="step-text">If you get a .zip file, extract it first 📁</span>
+            </div>
+            <div class="step-card">
+                <span class="step-number">5</span>
+                <span class="step-text">Upload the .txt file below 🚀</span>
             </div>
         </div>
         ''', unsafe_allow_html=True)
 
-    # Upload section
+    # File uploader
     st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
 
     uploaded_file = st.file_uploader(
@@ -860,7 +1169,7 @@ def render_landing_page():
 
                 # CTA button
                 st.markdown('<div style="height: 0.5rem;"></div>', unsafe_allow_html=True)
-                if st.button("Reveal Our Chat Insights 👀", type="primary", use_container_width=True):
+                if st.button("Start Analysis 🚀", type="primary", use_container_width=True):
                     st.session_state.page = 'loading'
                     st.rerun()
             else:
@@ -891,7 +1200,7 @@ def render_landing_page():
 
         st.session_state.participant_mapping = mapping
 
-        if st.button("Reveal Our Chat Insights 👀", type="primary", use_container_width=True):
+        if st.button("Start Analysis 🚀", type="primary", use_container_width=True):
             st.session_state.page = 'loading'
             st.rerun()
 
@@ -910,220 +1219,9 @@ def render_loading_screen():
     except Exception as e:
         st.session_state.analysis_results = {'error': str(e)}
 
-    # Transition to preview
-    st.session_state.page = 'preview'
+    # Transition to results
+    st.session_state.page = 'results'
     st.rerun()
-
-
-# ============================================================
-# PAGE: BLURRED PREVIEW + PAYWALL
-# ============================================================
-
-def render_blurred_preview():
-    r = st.session_state.analysis_results
-    if not r:
-        st.session_state.page = 'landing'
-        st.rerun()
-        return
-
-    if r.get('error'):
-        st.error(f"Analysis failed: {r['error']}")
-        if st.button("Try Again", type="primary"):
-            st.session_state.page = 'landing'
-            st.session_state.analysis_results = None
-            st.rerun()
-        return
-
-    key_id, key_secret = get_razorpay_keys()
-    razorpay_configured = bool(key_id and key_secret)
-
-    # If payment not needed or already completed, go to results
-    if not PAYMENT_ENABLED or not razorpay_configured or st.session_state.payment_completed:
-        st.session_state.page = 'results'
-        st.rerun()
-        return
-
-    # ---- Blurred preview ----
-
-    st.markdown('''
-    <div style="text-align:center; padding: 1rem 0 0.5rem;">
-        <h2 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">
-            Your analysis is complete! ✨
-        </h2>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    # Relationship score with last digit blurred
-    score = r.get('rating_score', 0)
-    tens = int(score) // 10
-    ones = int(score) % 10
-
-    st.markdown(f'''
-    <div class="score-container">
-        <div class="score-label">Your Relationship Score</div>
-        <div class="score-value">
-            {tens}<span class="score-hidden">{ones}</span><span class="score-unit">/100</span>
-        </div>
-        <div class="score-label" style="margin-top: 0.5rem;">❤️ {r.get('rating_label', '')}</div>
-        <div class="score-unlock">🔒 Unlock to see your full score</div>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    # Blurred dashboard preview
-    blurred = st.session_state.blurred_previews or {}
-    if 'main' in blurred:
-        st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
-        st.image(blurred['main'], use_container_width=True,
-                 caption="🔒 Your relationship dashboard — unlock to view in full detail")
-
-    # Locked insight cards
-    st.markdown(f'''
-    <div class="locked-grid">
-        <div class="locked-card">
-            <span class="lock-icon">🔒</span>
-            <h4>💕 Compatibility</h4>
-            <div class="blurred-text">
-                Your communication patterns reveal a deep connection.
-                Message balance shows healthy engagement from both sides.
-            </div>
-        </div>
-        <div class="locked-card">
-            <span class="lock-icon">🔒</span>
-            <h4>🎭 Personality Traits</h4>
-            <div class="blurred-text">
-                5 strengths and growth areas identified for each partner.
-                Detailed behavioral analysis from your texts.
-            </div>
-        </div>
-        <div class="locked-card">
-            <span class="lock-icon">🔒</span>
-            <h4>📊 Communication</h4>
-            <div class="blurred-text">
-                Response patterns, conversation starters, and message
-                timing analysis across {r.get('total_days', 0)} days.
-            </div>
-        </div>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    # ---- Paywall ----
-
-    st.markdown(f'''
-    <div class="paywall-card">
-        <h2>Your love report is ready 💕</h2>
-        <p class="paywall-sub">Unlock your full relationship insights</p>
-        <div class="paywall-price">₹79</div>
-        <p class="paywall-sub">One-time unlock</p>
-        <p class="paywall-coffee">Less than a cup of coffee ☕</p>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    # Payment CTA
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("Unlock My Love Report 💕", type="primary", use_container_width=True):
-            order = create_order(PAYMENT_AMOUNT)
-            if order:
-                st.session_state.order_id = order['id']
-                st.session_state.show_checkout = True
-                st.rerun()
-            else:
-                st.error("Failed to create order. Please try again.")
-
-    # Razorpay checkout
-    if st.session_state.show_checkout and st.session_state.order_id:
-        st.markdown("---")
-        checkout_html = f'''
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-        <div id="razorpay-container" style="text-align: center; padding: 20px;">
-            <button id="pay-btn" style="
-                background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
-                color: white;
-                padding: 18px 50px;
-                font-size: 18px;
-                border: none;
-                border-radius: 30px;
-                cursor: pointer;
-                font-weight: bold;
-                box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
-            ">💕 Pay ₹79 Now</button>
-            <p style="color: #666; margin-top: 15px;">Click to open secure payment window</p>
-        </div>
-        <script>
-            var options = {{
-                "key": "{key_id}",
-                "amount": "{PAYMENT_AMOUNT}",
-                "currency": "INR",
-                "name": "Love Chat Analyzer",
-                "description": "Unlock Your Love Report",
-                "order_id": "{st.session_state.order_id}",
-                "handler": function (response) {{
-                    localStorage.setItem('razorpay_payment_id', response.razorpay_payment_id);
-                    document.getElementById('razorpay-container').innerHTML =
-                        '<div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); padding: 25px; border-radius: 15px;">' +
-                        '<h3 style="color: #155724;">💕 Payment Successful!</h3>' +
-                        '<p style="color: #155724;">Click the button below to unlock your report</p>' +
-                        '<p style="color: #666; font-size: 12px; margin-top: 10px;">Payment ID: ' + response.razorpay_payment_id + '</p></div>';
-                }},
-                "theme": {{
-                    "color": "#c44569"
-                }},
-                "modal": {{
-                    "ondismiss": function() {{
-                        document.getElementById('razorpay-container').innerHTML +=
-                            '<p style="color: #dc3545; margin-top: 10px;">Payment cancelled. Click the button to try again.</p>';
-                    }}
-                }}
-            }};
-            var rzp = new Razorpay(options);
-            document.getElementById('pay-btn').onclick = function(e) {{
-                rzp.open();
-                e.preventDefault();
-            }};
-        </script>
-        '''
-        components.html(checkout_html, height=250)
-
-        st.markdown("---")
-        st.markdown("**After completing payment, click below:**")
-
-        if st.button("✅ I've Completed Payment — Unlock Results", type="primary", use_container_width=True):
-            import requests
-            try:
-                response = requests.get(
-                    f"https://api.razorpay.com/v1/orders/{st.session_state.order_id}",
-                    auth=(key_id, key_secret)
-                )
-                if response.status_code == 200:
-                    order_data = response.json()
-                    if order_data.get('status') == 'paid':
-                        st.session_state.payment_completed = True
-                        st.session_state.show_checkout = False
-                        st.session_state.page = 'results'
-                        st.balloons()
-                        st.rerun()
-                    else:
-                        st.warning("Payment not yet received. Please complete the payment first, then click this button.")
-                else:
-                    st.error("Could not verify payment. Please try again.")
-            except Exception:
-                st.error("Verification error. Please try again.")
-
-    # Trust badges
-    st.markdown('''
-    <div class="trust-row">
-        <span class="trust-item">🔒 Secure payment</span>
-        <span class="trust-item">⚡ Instant unlock</span>
-        <span class="trust-item">💬 Results ready immediately</span>
-    </div>
-    ''', unsafe_allow_html=True)
-
-    # Analyze new chat option
-    st.markdown("---")
-    if st.button("← Upload a different chat", key="back_to_landing"):
-        for key, default in STATE_DEFAULTS.items():
-            st.session_state[key] = default
-        st.rerun()
 
 
 # ============================================================
@@ -1133,15 +1231,22 @@ def render_blurred_preview():
 def render_full_results():
     r = st.session_state.analysis_results
     if not r or r.get('error'):
-        st.session_state.page = 'landing'
+        if r and r.get('error'):
+            st.error(f"Analysis failed: {r['error']}")
+            if st.button("Try Again", type="primary"):
+                st.session_state.analysis_results = None
+                st.session_state.page = 'upload'
+                st.rerun()
+            return
+        st.session_state.page = 'upload'
         st.rerun()
         return
 
-    # Safety: if payment required but not completed, go to preview
+    # Safety: if payment required but not completed, go to landing
     key_id, key_secret = get_razorpay_keys()
     razorpay_configured = bool(key_id and key_secret)
     if PAYMENT_ENABLED and razorpay_configured and not st.session_state.payment_completed:
-        st.session_state.page = 'preview'
+        st.session_state.page = 'landing'
         st.rerun()
         return
 
@@ -1308,7 +1413,7 @@ def render_full_results():
 with st.sidebar:
     st.markdown("### 💝 Love Chat Analyzer")
 
-    if st.session_state.page in ('preview', 'results'):
+    if st.session_state.page in ('upload', 'results'):
         st.markdown("---")
         if st.button("🔄 Analyze New Chat"):
             for key, default in STATE_DEFAULTS.items():
@@ -1342,22 +1447,38 @@ with st.sidebar:
 page = st.session_state.page
 
 # Safety guards
-if page in ('preview', 'results') and not st.session_state.analysis_results:
-    st.session_state.page = 'landing'
-    page = 'landing'
+if page == 'upload' and not st.session_state.payment_completed:
+    key_id, _ = get_razorpay_keys()
+    if PAYMENT_ENABLED and bool(key_id):
+        st.session_state.page = 'landing'
+        page = 'landing'
+
+if page == 'loading' and not st.session_state.payment_completed:
+    key_id, _ = get_razorpay_keys()
+    if PAYMENT_ENABLED and bool(key_id):
+        st.session_state.page = 'landing'
+        page = 'landing'
+
+if page == 'loading' and not st.session_state.uploaded_file_content:
+    st.session_state.page = 'upload'
+    page = 'upload'
+
+if page == 'results' and not st.session_state.analysis_results:
+    st.session_state.page = 'upload'
+    page = 'upload'
 
 if page == 'results' and not st.session_state.payment_completed:
-    key_id, key_secret = get_razorpay_keys()
-    if PAYMENT_ENABLED and bool(key_id and key_secret):
-        st.session_state.page = 'preview'
-        page = 'preview'
+    key_id, _ = get_razorpay_keys()
+    if PAYMENT_ENABLED and bool(key_id):
+        st.session_state.page = 'landing'
+        page = 'landing'
 
 if page == 'landing':
     render_landing_page()
+elif page == 'upload':
+    render_upload_page()
 elif page == 'loading':
     render_loading_screen()
-elif page == 'preview':
-    render_blurred_preview()
 elif page == 'results':
     render_full_results()
 

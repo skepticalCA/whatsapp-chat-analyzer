@@ -13,8 +13,8 @@ from typing import Tuple, Optional
 RAZORPAY_ORDER_URL = "https://api.razorpay.com/v1/orders"
 RAZORPAY_PAYMENT_URL = "https://api.razorpay.com/v1/payments"
 
-# Default amount in paise (₹79 = 7900 paise)
-DEFAULT_AMOUNT = 7900
+# Default amount in paise (₹99 = 9900 paise)
+DEFAULT_AMOUNT = 9900
 CURRENCY = "INR"
 
 
@@ -45,7 +45,7 @@ def create_order(amount: int = DEFAULT_AMOUNT) -> Optional[dict]:
     Create a Razorpay order.
 
     Args:
-        amount: Amount in paise (default ₹79 = 7900 paise)
+        amount: Amount in paise (default ₹99 = 9900 paise)
 
     Returns:
         Order details dict or None if failed
