@@ -713,8 +713,8 @@ def get_blurred_teaser_html():
         '</div>'
         '<div class="teaser-overlay">'
         '<span class="lock-icon">🔒</span>'
-        '<span class="teaser-text">Your love report is ready 💕</span>'
-        '<span class="teaser-sub">Unlock to see your full dashboard</span>'
+        '<span class="teaser-text">This could be your love report 💕</span>'
+        '<span class="teaser-sub">Pay &amp; upload your chat to unlock the magic</span>'
         '</div>'
         '</div>'
     )
