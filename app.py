@@ -888,13 +888,10 @@ def render_landing_page():
     # --- 2. DISCOVERY CARDS ---
     st.markdown(get_discovery_cards_html(), unsafe_allow_html=True)
 
-    # --- 3. BLURRED DASHBOARD TEASER ---
-    st.markdown(get_blurred_teaser_html(), unsafe_allow_html=True)
-
-    # --- 4. TESTIMONIALS ---
+    # --- 3. TESTIMONIALS ---
     st.markdown(get_testimonials_html(), unsafe_allow_html=True)
 
-    # --- 5. SOCIAL PROOF ---
+    # --- 4. SOCIAL PROOF ---
     st.markdown(
         '<div class="social-proof-strip">'
         '<div class="proof-stat"><span class="stat-number">5,000+</span><span class="stat-label">chats analyzed 💬</span></div>'
@@ -904,7 +901,7 @@ def render_landing_page():
         unsafe_allow_html=True
     )
 
-    # --- 6. WHAT YOU'LL UNLOCK ---
+    # --- 5. WHAT YOU'LL UNLOCK ---
     st.markdown(
         '<div style="text-align:center; margin: 1.5rem 0 0.5rem;">'
         '<h3 style="color: #c44569 !important; -webkit-text-fill-color: #c44569 !important;">Unlock to see 🔓</h3>'
@@ -919,6 +916,9 @@ def render_landing_page():
         '</div>',
         unsafe_allow_html=True
     )
+
+    # --- 6. BLURRED DASHBOARD TEASER ---
+    st.markdown(get_blurred_teaser_html(), unsafe_allow_html=True)
 
     # --- 7. PRICE FRAMING ---
     st.markdown(
