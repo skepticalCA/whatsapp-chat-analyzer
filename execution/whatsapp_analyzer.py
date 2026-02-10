@@ -17,6 +17,7 @@ from metrics_calculator import MetricsCalculator
 from topic_classifier import TopicClassifier
 from sentiment_analyzer import SentimentAnalyzer
 from dashboard_generator import DashboardGenerator
+from word_cloud_analyzer import WordCloudGenerator
 
 
 def analyze_chat(chat_file: str, output_dir: str, participant_mapping: dict = None):
@@ -115,11 +116,17 @@ def analyze_chat(chat_file: str, output_dir: str, participant_mapping: dict = No
     print(f"      Saved sentiment to {sentiment_path}")
 
     # Step 5: Generate dashboard
-    print(f"\n[5/5] Generating visual dashboard...")
+    print(f"\n[5/6] Generating main visual dashboard...")
     dashboard = DashboardGenerator(messages, metrics, sentiment, topics, participant_mapping)
 
     output_path = os.path.join(output_dir, 'dashboard.png')
     dashboard.create_dashboard(output_path)
+
+    # Step 6: Generate Word Cloud Dashboard
+    print(f"\n[6/6] Generating word cloud dashboard...")
+    wc_generator = WordCloudGenerator(messages, participant_mapping)
+    wc_output_path = os.path.join(output_dir, 'word_cloud_dashboard.png')
+    wc_generator.create_dashboard(wc_output_path)
 
     print("\n" + "=" * 60)
     print("Analysis Complete!")

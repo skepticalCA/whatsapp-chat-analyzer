@@ -23,6 +23,7 @@ from dashboard_generator import DashboardGenerator
 from traits_analyzer import TraitsAnalyzer
 from traits_dashboard import TraitsDashboardGenerator
 from video_call_analyzer import VideoCallAnalyzer, VideoCallDashboard
+from word_cloud_analyzer import WordCloudGenerator
 from razorpay_handler import create_order, get_razorpay_keys, create_payment_link, verify_payment_link
 from flashcard_generator import FlashcardGenerator
 
@@ -766,7 +767,7 @@ def run_analysis_pipeline():
 
         output_dir = tempfile.mkdtemp()
 
-        dashboard_status = {'main': False, 'traits': False, 'calls': False}
+        dashboard_status = {'main': False, 'traits': False, 'calls': False, 'words': False}
         dashboard_errors = {}
         dashboard_bytes = {}
 
@@ -817,6 +818,23 @@ def run_analysis_pipeline():
                 dashboard_errors['calls'] = "File was not created"
         except Exception as e:
             dashboard_errors['calls'] = str(e)
+        finally:
+            plt.close('all')
+            gc.collect()
+        
+        # Word Cloud Dashboard
+        wc_path = os.path.join(output_dir, 'word_cloud_dashboard.png')
+        try:
+            wc_generator = WordCloudGenerator(messages, participant_mapping)
+            wc_generator.create_dashboard(wc_path)
+            if os.path.exists(wc_path):
+                dashboard_status['words'] = True
+                with open(wc_path, 'rb') as f:
+                    dashboard_bytes['words'] = f.read()
+            else:
+                dashboard_errors['words'] = "File was not created"
+        except Exception as e:
+            dashboard_errors['words'] = str(e)
         finally:
             plt.close('all')
             gc.collect()
@@ -1184,7 +1202,7 @@ def render_full_results():
 
     # PDF Export
     pdf_images = []
-    for key in ['main', 'traits', 'calls']:
+    for key in ['main', 'traits', 'calls', 'words']:
         if r['dashboard_status'].get(key) and key in r['dashboard_bytes']:
             pdf_images.append(r['dashboard_bytes'][key])
 
@@ -1211,7 +1229,7 @@ def render_full_results():
             key="export_pdf"
         )
 
-    tab1, tab2, tab3 = st.tabs(["💕 Main Dashboard", "🎭 Traits Analysis", "📞 Call Statistics"])
+    tab1, tab2, tab3, tab4 = st.tabs(["💕 Main Dashboard", "🎭 Traits Analysis", "📞 Call Statistics", "☁️ Word Cloud"])
 
     with tab1:
         if r['dashboard_status']['main'] and 'main' in r['dashboard_bytes']:
@@ -1254,6 +1272,20 @@ def render_full_results():
             )
         else:
             st.error(f"💔 Call dashboard could not be generated. Error: {r['dashboard_errors'].get('calls', 'Unknown error')}")
+
+    with tab4:
+        if r['dashboard_status']['words'] and 'words' in r['dashboard_bytes']:
+            st.image(r['dashboard_bytes']['words'], use_container_width=True)
+            st.download_button(
+                "☁️ Download Word Cloud Dashboard",
+                r['dashboard_bytes']['words'],
+                file_name="word_cloud_dashboard.png",
+                mime="image/png",
+                use_container_width=True,
+                key="dl_words"
+            )
+        else:
+            st.error(f"💔 Word cloud dashboard could not be generated. Error: {r['dashboard_errors'].get('words', 'Unknown error')}")
 
     # Flashcards
     if r.get('flashcards'):
